@@ -6,7 +6,10 @@ use crossterm::{
 };
 use ratatui::{Terminal, prelude::CrosstermBackend};
 use std::{io, time::Duration};
-use yagura::app::App;
+use yagura::{
+    app::App,
+    process::{Command, ProcessManager},
+};
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -18,8 +21,12 @@ async fn main() -> Result<()> {
     let mut terminal = Terminal::new(backend)?;
 
     let mut app = App::new();
+    let mut process_manager = ProcessManager::new();
 
-    main_loop(&mut terminal, &mut app).await?;
+    let command = Command::new("echo 'hello'".to_string());
+    process_manager.spawn(command).await?;
+
+    main_loop(&mut terminal, &mut app, &mut process_manager).await?;
 
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
@@ -31,6 +38,7 @@ async fn main() -> Result<()> {
 async fn main_loop(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
+    _process_manager: &mut ProcessManager,
 ) -> Result<()> {
     loop {
         terminal.draw(|_f| {
