@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::{
-    event::{self, Event},
+    event::{self, Event, KeyCode, KeyModifiers},
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
@@ -25,7 +25,9 @@ async fn main() -> Result<()> {
     let mut process_manager = ProcessManager::new();
 
     let command = Command::new("echo 'hello'".to_string());
+    let command_id = command.id();
     app.add_command(command);
+    app.select_command_by_id(command_id);
 
     main_loop(&mut terminal, &mut app, &mut process_manager).await?;
 
@@ -39,7 +41,7 @@ async fn main() -> Result<()> {
 async fn main_loop(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
-    _process_manager: &mut ProcessManager,
+    process_manager: &mut ProcessManager,
 ) -> Result<()> {
     loop {
         terminal.draw(|f| ui::render(f, app))?;
@@ -48,8 +50,12 @@ async fn main_loop(
             && let Event::Key(key) = event::read()?
         {
             match key.code {
-                crossterm::event::KeyCode::Char('q') => {
-                    app.quit();
+                KeyCode::Char('q') => app.quit(),
+                KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => app.quit(),
+                KeyCode::Enter => {
+                    if let Some(command) = app.get_selected_command() {
+                        process_manager.spawn(command).await?;
+                    }
                 }
                 _ => {}
             }

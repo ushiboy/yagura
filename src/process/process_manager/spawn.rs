@@ -8,7 +8,7 @@ use tokio::sync::Mutex;
 use super::{ProcessHandle, ProcessManager};
 
 impl ProcessManager {
-    pub async fn spawn(&mut self, command: Command) -> Result<()> {
+    pub async fn spawn(&mut self, command: &Command) -> Result<()> {
         let command_id = command.id();
         let command_str = command.command();
 
