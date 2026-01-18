@@ -1,0 +1,109 @@
+use std::collections::VecDeque;
+
+use crate::process::OutputLine;
+
+pub struct OutputBuffer {
+    lines: VecDeque<OutputLine>,
+    max_lines: usize,
+}
+
+impl OutputBuffer {
+    pub fn new(max_lines: usize) -> Self {
+        Self {
+            lines: VecDeque::with_capacity(max_lines),
+            max_lines,
+        }
+    }
+
+    pub fn push_line(&mut self, line: OutputLine) {
+        if self.lines.len() == self.max_lines {
+            self.lines.pop_front();
+        }
+        self.lines.push_back(line);
+    }
+
+    pub fn lines(&self) -> &VecDeque<OutputLine> {
+        &self.lines
+    }
+}
+
+impl Default for OutputBuffer {
+    fn default() -> Self {
+        Self::new(10_000)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_output_buffer_new() {
+        let buffer = OutputBuffer::new(100);
+        assert_eq!(buffer.lines().len(), 0);
+        assert_eq!(buffer.max_lines, 100);
+    }
+
+    #[test]
+    fn test_output_buffer_default() {
+        let buffer = OutputBuffer::default();
+        assert_eq!(buffer.lines().len(), 0);
+        assert_eq!(buffer.max_lines, 10_000);
+    }
+
+    #[test]
+    fn test_push_line() {
+        let mut buffer = OutputBuffer::new(3);
+
+        let line1 = OutputLine::new("Line 1".to_string());
+        buffer.push_line(line1);
+        assert_eq!(buffer.lines().len(), 1);
+        assert_eq!(buffer.lines()[0].content(), "Line 1");
+
+        let line2 = OutputLine::new("Line 2".to_string());
+        buffer.push_line(line2);
+        assert_eq!(buffer.lines().len(), 2);
+        assert_eq!(buffer.lines()[1].content(), "Line 2");
+    }
+
+    #[test]
+    fn test_max_lines_limit() {
+        let mut buffer = OutputBuffer::new(3);
+
+        buffer.push_line(OutputLine::new("Line 1".to_string()));
+        buffer.push_line(OutputLine::new("Line 2".to_string()));
+        buffer.push_line(OutputLine::new("Line 3".to_string()));
+        assert_eq!(buffer.lines().len(), 3);
+
+        // 4th line should evict the first line
+        buffer.push_line(OutputLine::new("Line 4".to_string()));
+        assert_eq!(buffer.lines().len(), 3);
+        assert_eq!(buffer.lines()[0].content(), "Line 2");
+        assert_eq!(buffer.lines()[1].content(), "Line 3");
+        assert_eq!(buffer.lines()[2].content(), "Line 4");
+    }
+
+    #[test]
+    fn test_max_lines_eviction_order() {
+        let mut buffer = OutputBuffer::new(2);
+
+        buffer.push_line(OutputLine::new("First".to_string()));
+        buffer.push_line(OutputLine::new("Second".to_string()));
+        buffer.push_line(OutputLine::new("Third".to_string()));
+
+        // Should keep the last 2 lines
+        assert_eq!(buffer.lines().len(), 2);
+        assert_eq!(buffer.lines()[0].content(), "Second");
+        assert_eq!(buffer.lines()[1].content(), "Third");
+    }
+
+    #[test]
+    fn test_lines_accessor() {
+        let mut buffer = OutputBuffer::new(5);
+        buffer.push_line(OutputLine::new("Test".to_string()));
+
+        let lines = buffer.lines();
+        assert_eq!(lines.len(), 1);
+        assert_eq!(lines[0].content(), "Test");
+    }
+}
