@@ -2,6 +2,7 @@ use super::super::process::Command;
 
 pub struct App {
     commands: Vec<Command>,
+    selected_index: Option<usize>,
     should_quit: bool,
 }
 
@@ -18,3 +19,4 @@ impl App {
 mod add_command;
 mod init;
 mod quit;
+mod select;
