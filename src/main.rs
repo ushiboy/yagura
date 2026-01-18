@@ -1,25 +1,56 @@
 use anyhow::Result;
-use yagura::{app::App, process::Pid};
+use crossterm::{
+    event::{self, Event},
+    execute,
+    terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
+};
+use ratatui::{Terminal, prelude::CrosstermBackend};
+use std::{io, time::Duration};
+use yagura::app::App;
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    enable_raw_mode()?;
+
+    let mut stdout = io::stdout();
+    execute!(stdout, EnterAlternateScreen)?;
+    let backend = CrosstermBackend::new(stdout);
+    let mut terminal = Terminal::new(backend)?;
+
     let mut app = App::new();
 
-    if app.should_quit() {
-        println!("App is set to quit.");
-    } else {
-        println!("App is running.");
-    }
+    main_loop(&mut terminal, &mut app).await?;
 
-    let pid = Pid(1234);
-    println!("Hello, world! {}", pid);
+    disable_raw_mode()?;
+    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
+    terminal.show_cursor()?;
 
-    app.quit();
+    Ok(())
+}
 
-    if app.should_quit() {
-        println!("App is set to quit.");
-    } else {
-        println!("App is running.");
+async fn main_loop(
+    terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
+    app: &mut App,
+) -> Result<()> {
+    loop {
+        terminal.draw(|_f| {
+            // TODO
+        })?;
+
+        if event::poll(Duration::from_millis(100))?
+            && let Event::Key(key) = event::read()?
+        {
+            match key.code {
+                crossterm::event::KeyCode::Char('q') => {
+                    app.quit();
+                }
+                _ => {}
+            }
+        }
+
+        if app.should_quit() {
+            break;
+        }
     }
 
     Ok(())
