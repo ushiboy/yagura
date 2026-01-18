@@ -1,12 +1,20 @@
+use super::super::process::Command;
+
 pub struct App {
+    commands: Vec<Command>,
     should_quit: bool,
 }
 
 impl App {
+    pub fn commands(&self) -> &Vec<Command> {
+        &self.commands
+    }
+
     pub fn should_quit(&self) -> bool {
         self.should_quit
     }
 }
 
+mod add_command;
 mod init;
 mod quit;

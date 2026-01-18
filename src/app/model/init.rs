@@ -2,7 +2,10 @@ use super::App;
 
 impl App {
     pub fn new() -> Self {
-        Self { should_quit: false }
+        Self {
+            commands: vec![],
+            should_quit: false,
+        }
     }
 }
 
@@ -12,6 +15,7 @@ mod tests {
     #[test]
     fn test_app_new() {
         let app = App::new();
+        assert!(app.commands.is_empty());
         assert_eq!(app.should_quit(), false);
     }
 }
