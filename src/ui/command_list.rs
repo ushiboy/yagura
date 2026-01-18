@@ -2,13 +2,24 @@ use crate::app::App;
 use ratatui::{
     Frame,
     layout::Rect,
-    widgets::{Block, Borders},
+    text::Line,
+    widgets::{Block, Borders, List, ListItem},
 };
 
-pub fn render(frame: &mut Frame, area: Rect, _app: &App) {
-    let output = Block::default().title(" Command ").borders(Borders::ALL);
+pub fn render(frame: &mut Frame, area: Rect, app: &App) {
+    let items = app
+        .commands()
+        .iter()
+        .enumerate()
+        .map(|(_i, cmd)| {
+            let content = format!("{}", cmd.command());
+            ListItem::new(Line::from(content))
+        })
+        .collect::<Vec<_>>();
 
-    frame.render_widget(output, area);
+    let list = List::new(items).block(Block::default().title(" Command ").borders(Borders::ALL));
+
+    frame.render_widget(list, area);
 }
 
 #[cfg(test)]

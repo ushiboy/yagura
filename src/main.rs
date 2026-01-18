@@ -25,7 +25,7 @@ async fn main() -> Result<()> {
     let mut process_manager = ProcessManager::new();
 
     let command = Command::new("echo 'hello'".to_string());
-    process_manager.spawn(command).await?;
+    app.add_command(command);
 
     main_loop(&mut terminal, &mut app, &mut process_manager).await?;
 
