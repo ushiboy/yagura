@@ -9,6 +9,7 @@ use std::{io, time::Duration};
 use yagura::{
     app::App,
     process::{Command, ProcessManager},
+    ui,
 };
 
 #[tokio::main]
@@ -41,9 +42,7 @@ async fn main_loop(
     _process_manager: &mut ProcessManager,
 ) -> Result<()> {
     loop {
-        terminal.draw(|_f| {
-            // TODO
-        })?;
+        terminal.draw(|f| ui::render(f, app))?;
 
         if event::poll(Duration::from_millis(100))?
             && let Event::Key(key) = event::read()?
