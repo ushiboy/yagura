@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-use crate::process::Command;
+use super::Command;
 
 use super::App;
 
@@ -22,8 +22,8 @@ impl App {
 
 #[cfg(test)]
 mod tests {
+    use super::Command;
     use super::*;
-    use crate::process::Command;
 
     #[test]
     fn test_select_command_by_id() {

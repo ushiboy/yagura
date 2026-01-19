@@ -1,14 +1,16 @@
 use anyhow::Result;
 use crossterm::{
-    event::{self, Event, KeyCode, KeyModifiers},
+    event::{Event, KeyCode, KeyModifiers},
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{Terminal, prelude::CrosstermBackend};
-use std::{io, time::Duration};
+use std::io;
+use tokio::sync::mpsc;
 use yagura::{
-    app::App,
-    process::{Command, ProcessManager},
+    app::{App, Command},
+    event::AppEvent,
+    process::ProcessManager,
     ui,
 };
 
@@ -29,7 +31,25 @@ async fn main() -> Result<()> {
     app.add_command(command);
     app.select_command_by_id(command_id);
 
-    main_loop(&mut terminal, &mut app, &mut process_manager).await?;
+    let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
+
+    let terminal_event_tx = event_tx.clone();
+    tokio::spawn(async move {
+        loop {
+            if let Ok(Event::Key(key)) = crossterm::event::read() {
+                let _ = terminal_event_tx.send(AppEvent::Key(key));
+            }
+        }
+    });
+
+    main_loop(
+        &mut terminal,
+        &mut app,
+        &mut process_manager,
+        &mut event_rx,
+        event_tx,
+    )
+    .await?;
 
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
@@ -42,22 +62,29 @@ async fn main_loop(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
     process_manager: &mut ProcessManager,
+    event_rx: &mut mpsc::UnboundedReceiver<AppEvent>,
+    event_tx: mpsc::UnboundedSender<AppEvent>,
 ) -> Result<()> {
     loop {
         terminal.draw(|f| ui::render(f, app))?;
 
-        if event::poll(Duration::from_millis(100))?
-            && let Event::Key(key) = event::read()?
-        {
-            match key.code {
-                KeyCode::Char('q') => app.quit(),
-                KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => app.quit(),
-                KeyCode::Enter => {
-                    if let Some(command) = app.get_selected_command() {
-                        process_manager.spawn(command).await?;
+        if let Some(event) = event_rx.recv().await {
+            match event {
+                AppEvent::Key(key) => match key.code {
+                    KeyCode::Char('q') => app.quit(),
+                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+                        app.quit()
                     }
+                    KeyCode::Enter => {
+                        if let Some(command) = app.get_selected_command() {
+                            process_manager.spawn(command, event_tx.clone()).await?;
+                        }
+                    }
+                    _ => {}
+                },
+                AppEvent::ProcessOutput(command_id, output_line) => {
+                    app.add_output_line(command_id, output_line);
                 }
-                _ => {}
             }
         }
 

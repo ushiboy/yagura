@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use crate::process::OutputLine;
+use super::OutputLine;
 
 pub struct OutputBuffer {
     lines: VecDeque<OutputLine>,

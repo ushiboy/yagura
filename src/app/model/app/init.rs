@@ -1,5 +1,4 @@
 use super::App;
-
 impl App {
     pub fn new() -> Self {
         Self {

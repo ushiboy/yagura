@@ -1,8 +1,11 @@
 use uuid::Uuid;
 
+use super::OutputBuffer;
+
 pub struct Command {
     id: Uuid,
     command: String,
+    output_buffer: OutputBuffer,
 }
 
 impl Command {
@@ -15,4 +18,5 @@ impl Command {
     }
 }
 
+mod add_output_line;
 mod init;

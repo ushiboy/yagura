@@ -1,22 +1,9 @@
-use super::super::process::Command;
+mod app;
+mod command;
+mod output_buffer;
+mod output_line;
 
-pub struct App {
-    commands: Vec<Command>,
-    selected_index: Option<usize>,
-    should_quit: bool,
-}
-
-impl App {
-    pub fn commands(&self) -> &Vec<Command> {
-        &self.commands
-    }
-
-    pub fn should_quit(&self) -> bool {
-        self.should_quit
-    }
-}
-
-mod add_command;
-mod init;
-mod quit;
-mod select;
+pub use app::App;
+pub use command::Command;
+pub use output_buffer::OutputBuffer;
+pub use output_line::OutputLine;
