@@ -42,6 +42,15 @@ async fn main() -> Result<()> {
         }
     });
 
+    let tick_tx = event_tx.clone();
+    tokio::spawn(async move {
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
+        loop {
+            interval.tick().await;
+            let _ = tick_tx.send(AppEvent::Tick);
+        }
+    });
+
     main_loop(
         &mut terminal,
         &mut app,
@@ -71,6 +80,9 @@ async fn main_loop(
 
         if let Some(event) = event_rx.recv().await {
             match event {
+                AppEvent::Tick => {
+                    // ignore
+                }
                 AppEvent::Key(key) => match key.code {
                     KeyCode::Char('q') => app.quit(),
                     KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
