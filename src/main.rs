@@ -51,6 +51,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    process_manager.shutdown_all().await?;
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
     terminal.show_cursor()?;

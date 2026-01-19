@@ -17,5 +17,6 @@ pub struct ProcessHandle {
 }
 
 mod init;
+mod shutdown_all;
 mod spawn;
 mod stop;
