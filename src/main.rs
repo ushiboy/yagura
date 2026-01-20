@@ -43,10 +43,10 @@ async fn main() -> Result<()> {
                 break;
             }
 
-            if crossterm::event::poll(Duration::from_millis(100)).is_ok() {
-                if let Ok(Event::Key(key)) = crossterm::event::read() {
-                    let _ = terminal_event_tx.send(AppEvent::Key(key));
-                }
+            if crossterm::event::poll(Duration::from_millis(100)).is_ok()
+                && let Ok(Event::Key(key)) = crossterm::event::read()
+            {
+                let _ = terminal_event_tx.send(AppEvent::Key(key));
             }
 
             tokio::task::yield_now().await;

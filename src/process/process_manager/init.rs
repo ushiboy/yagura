@@ -2,6 +2,12 @@ use std::collections::HashMap;
 
 use super::ProcessManager;
 
+impl Default for ProcessManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ProcessManager {
     pub fn new() -> Self {
         Self {

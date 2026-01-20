@@ -13,7 +13,7 @@ pub fn render(frame: &mut Frame, area: Rect, _app: &App) {
         let lines: Vec<Line> = cmd
             .output_lines()
             .iter()
-            .map(|line| Line::from(format!("{}", line.content())))
+            .map(|line| Line::from(line.content().to_string()))
             .collect();
 
         lines

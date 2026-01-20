@@ -49,10 +49,7 @@ impl ProcessManager {
 
         let child = Arc::new(Mutex::new(child));
         let pid = Pid(pid);
-        let handle = ProcessHandle {
-            _pid: pid,
-            child: child,
-        };
+        let handle = ProcessHandle { _pid: pid, child };
 
         self.handlers.insert(command_id, handle);
 

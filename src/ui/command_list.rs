@@ -10,9 +10,8 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let items = app
         .commands()
         .iter()
-        .enumerate()
-        .map(|(_i, cmd)| {
-            let content = format!("{}", cmd.command());
+        .map(|cmd| {
+            let content = cmd.command().to_string();
             ListItem::new(Line::from(content))
         })
         .collect::<Vec<_>>();
