@@ -2,11 +2,27 @@ use crate::app::App;
 use ratatui::{
     Frame,
     layout::Rect,
-    widgets::{Block, Borders},
+    text::Line,
+    widgets::{Block, Borders, Paragraph},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, _app: &App) {
-    let output = Block::default().title(" Output ").borders(Borders::ALL);
+    let command = _app.get_selected_command();
+
+    let content = if let Some(cmd) = command {
+        let lines: Vec<Line> = cmd
+            .output_lines()
+            .iter()
+            .map(|line| Line::from(format!("{}", line.content())))
+            .collect();
+
+        lines
+    } else {
+        vec![Line::from("No command selected.")]
+    };
+
+    let output =
+        Paragraph::new(content).block(Block::default().title(" Output ").borders(Borders::ALL));
 
     frame.render_widget(output, area);
 }
