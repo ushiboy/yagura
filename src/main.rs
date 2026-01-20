@@ -5,8 +5,9 @@ use crossterm::{
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{Terminal, prelude::CrosstermBackend};
-use std::io;
+use std::{io, time::Duration};
 use tokio::sync::mpsc;
+use tokio_util::sync::CancellationToken;
 use yagura::{
     app::{App, Command},
     event::AppEvent,
@@ -31,14 +32,24 @@ async fn main() -> Result<()> {
     app.add_command(command);
     app.select_command_by_id(command_id);
 
+    let cancel_token = CancellationToken::new();
     let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
 
+    let cancel_terminal_token = cancel_token.clone();
     let terminal_event_tx = event_tx.clone();
     tokio::spawn(async move {
         loop {
-            if let Ok(Event::Key(key)) = crossterm::event::read() {
-                let _ = terminal_event_tx.send(AppEvent::Key(key));
+            if cancel_terminal_token.is_cancelled() {
+                break;
             }
+
+            if crossterm::event::poll(Duration::from_millis(100)).is_ok() {
+                if let Ok(Event::Key(key)) = crossterm::event::read() {
+                    let _ = terminal_event_tx.send(AppEvent::Key(key));
+                }
+            }
+
+            tokio::task::yield_now().await;
         }
     });
 
@@ -60,6 +71,7 @@ async fn main() -> Result<()> {
     )
     .await?;
 
+    cancel_token.cancel();
     process_manager.shutdown_all().await?;
     disable_raw_mode()?;
     execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
