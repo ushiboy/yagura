@@ -27,7 +27,7 @@ async fn main() -> Result<()> {
     let mut app = App::new();
     let mut process_manager = ProcessManager::new();
 
-    let command = Command::new("echo 'hello'".to_string());
+    let command = Command::new("date".to_string());
     let command_id = command.id();
     app.add_command(command);
     app.select_command_by_id(command_id);

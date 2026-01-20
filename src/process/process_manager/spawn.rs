@@ -47,6 +47,16 @@ impl ProcessManager {
             }
         });
 
+        let stderr = child.stderr.take().context("Failed to take stderr")?;
+        let stderr_tx = event_tx.clone();
+        tokio::spawn(async move {
+            let reader = BufReader::new(stderr);
+            let mut lines = reader.lines();
+            while let Ok(Some(line)) = lines.next_line().await {
+                let _ = stderr_tx.send(AppEvent::ProcessOutput(command_id, OutputLine::new(line)));
+            }
+        });
+
         let child = Arc::new(Mutex::new(child));
         let pid = Pid(pid);
         let handle = ProcessHandle { _pid: pid, child };
