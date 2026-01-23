@@ -14,6 +14,10 @@ impl App {
     pub fn should_quit(&self) -> bool {
         self.should_quit
     }
+
+    pub fn selected_command_index(&self) -> Option<usize> {
+        self.selected_index
+    }
 }
 
 mod add_command;
