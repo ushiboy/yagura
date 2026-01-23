@@ -23,8 +23,9 @@ impl App {
         if self.commands.is_empty() {
             return;
         }
+
         self.selected_index = Some(match self.selected_index {
-            Some(index) if index + 1 < self.commands.len() => index + 1,
+            Some(index) => (index + 1) % self.commands.len(),
             _ => 0,
         });
     }
