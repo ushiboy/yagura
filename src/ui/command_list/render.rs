@@ -1,19 +1,17 @@
+use super::list_item::list_item;
 use crate::app::App;
 use ratatui::{
     Frame,
     layout::Rect,
-    text::Line,
-    widgets::{Block, Borders, List, ListItem},
+    widgets::{Block, Borders, List},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let items = app
         .commands()
         .iter()
-        .map(|cmd| {
-            let content = cmd.command().to_string();
-            ListItem::new(Line::from(content))
-        })
+        .enumerate()
+        .map(|(i, cmd)| list_item(cmd, app.selected_command_index() == Some(i)))
         .collect::<Vec<_>>();
 
     let list = List::new(items).block(Block::default().title(" Command ").borders(Borders::ALL));
