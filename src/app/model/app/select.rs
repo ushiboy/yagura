@@ -18,6 +18,16 @@ impl App {
             None
         }
     }
+
+    pub fn select_next_commmand(&mut self) {
+        if self.commands.is_empty() {
+            return;
+        }
+        self.selected_index = Some(match self.selected_index {
+            Some(index) if index + 1 < self.commands.len() => index + 1,
+            _ => 0,
+        });
+    }
 }
 
 #[cfg(test)]
@@ -46,5 +56,59 @@ mod tests {
 
         let selected_command = app.get_selected_command().unwrap();
         assert_eq!(selected_command.id(), command_id);
+    }
+
+    #[test]
+    fn test_select_next_command_with_empty_commands() {
+        let mut app = App::new();
+        assert!(app.commands().is_empty());
+        assert!(app.selected_index.is_none());
+
+        app.select_next_commmand();
+
+        assert!(app.selected_index.is_none());
+    }
+
+    #[test]
+    fn test_select_next_command_with_none_selected() {
+        let mut app = App::new();
+        app.add_command(Command::new("ls -la".to_string()));
+        app.add_command(Command::new("pwd".to_string()));
+        app.add_command(Command::new("echo test".to_string()));
+        assert!(app.selected_index.is_none());
+
+        app.select_next_commmand();
+
+        assert_eq!(app.selected_index, Some(0));
+    }
+
+    #[test]
+    fn test_select_next_command_increments_index() {
+        let mut app = App::new();
+        app.add_command(Command::new("ls -la".to_string()));
+        app.add_command(Command::new("pwd".to_string()));
+        app.add_command(Command::new("echo test".to_string()));
+        app.selected_index = Some(0);
+
+        app.select_next_commmand();
+
+        assert_eq!(app.selected_index, Some(1));
+
+        app.select_next_commmand();
+
+        assert_eq!(app.selected_index, Some(2));
+    }
+
+    #[test]
+    fn test_select_next_command_wraps_around() {
+        let mut app = App::new();
+        app.add_command(Command::new("ls -la".to_string()));
+        app.add_command(Command::new("pwd".to_string()));
+        app.add_command(Command::new("echo test".to_string()));
+        app.selected_index = Some(2);
+
+        app.select_next_commmand();
+
+        assert_eq!(app.selected_index, Some(0));
     }
 }
