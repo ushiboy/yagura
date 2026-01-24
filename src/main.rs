@@ -9,7 +9,7 @@ use std::{io, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
-    app::{App, Command},
+    app::{App, add_command},
     event::AppEvent,
     process::ProcessManager,
     ui,
@@ -27,10 +27,9 @@ async fn main() -> Result<()> {
     let mut app = App::new();
     let mut process_manager = ProcessManager::new();
 
-    let command = Command::new("date".to_string());
-    let command_id = command.id();
-    app.add_command(command);
-    app.select_command_by_id(command_id);
+    add_command(&mut app, "date".to_string());
+    add_command(&mut app, "ls -alt".to_string());
+    add_command(&mut app, "echo 'Hello World!'".to_string());
 
     let cancel_token = CancellationToken::new();
     let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
@@ -100,6 +99,8 @@ async fn main_loop(
                     KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
                         app.quit()
                     }
+                    KeyCode::Char('j') | KeyCode::Down => app.select_next_commmand(),
+                    KeyCode::Char('k') | KeyCode::Up => app.select_previous_command(),
                     KeyCode::Enter => {
                         if let Some(command) = app.get_selected_command() {
                             process_manager.spawn(command, event_tx.clone()).await?;
