@@ -1,6 +1,6 @@
-use super::OutputBuffer;
-
 use super::Command;
+use super::CommandStatus;
+use super::OutputBuffer;
 use uuid::{NoContext, Timestamp, Uuid};
 
 impl Command {
@@ -10,6 +10,7 @@ impl Command {
             id: Uuid::new_v7(ts),
             command,
             output_buffer: OutputBuffer::default(),
+            status: CommandStatus::Stopped,
         }
     }
 }

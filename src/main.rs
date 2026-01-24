@@ -30,6 +30,7 @@ async fn main() -> Result<()> {
     add_command(&mut app, "date".to_string());
     add_command(&mut app, "ls -alt".to_string());
     add_command(&mut app, "echo 'Hello World!'".to_string());
+    add_command(&mut app, "sh ./tmp/ping.sh".to_string());
 
     let cancel_token = CancellationToken::new();
     let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
