@@ -23,5 +23,6 @@ impl App {
 mod add_command;
 mod add_output_line;
 mod init;
+mod mark_command;
 mod quit;
 mod select;

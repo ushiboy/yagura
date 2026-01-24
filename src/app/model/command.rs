@@ -37,3 +37,4 @@ pub enum CommandStatus {
 
 mod add_output_line;
 mod init;
+mod mark;

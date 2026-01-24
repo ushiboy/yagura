@@ -9,7 +9,7 @@ use std::{io, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
-    app::{App, add_command},
+    app::{App, CommandStatus, add_command},
     event::AppEvent,
     process::ProcessManager,
     ui,
@@ -104,13 +104,28 @@ async fn main_loop(
                     KeyCode::Char('k') | KeyCode::Up => app.select_previous_command(),
                     KeyCode::Enter => {
                         if let Some(command) = app.get_selected_command() {
-                            process_manager.spawn(command, event_tx.clone()).await?;
+                            match command.status() {
+                                CommandStatus::Running => {
+                                    process_manager.stop(command.id()).await?;
+                                }
+                                CommandStatus::Stopped | CommandStatus::Error(_) => {
+                                    match process_manager.spawn(command, event_tx.clone()).await {
+                                        Ok(pid) => {
+                                            app.mark_command_run(command.id(), pid);
+                                        }
+                                        Err(_e) => {}
+                                    }
+                                }
+                            }
                         }
                     }
                     _ => {}
                 },
                 AppEvent::ProcessOutput(command_id, output_line) => {
                     app.add_output_line(command_id, output_line);
+                }
+                AppEvent::ProcessExited(command_id, exit_code) => {
+                    app.mark_command_exit(command_id, exit_code);
                 }
             }
         }

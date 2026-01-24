@@ -1,3 +1,4 @@
+#[derive(Debug, Clone, Copy)]
 pub struct Pid(pub u32);
 
 impl std::fmt::Display for Pid {

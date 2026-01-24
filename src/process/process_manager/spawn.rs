@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 
 use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
-use crate::process::Pid;
+use crate::process::{ExitCode, Pid};
 use std::{process::Stdio, sync::Arc};
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
@@ -15,7 +15,7 @@ impl ProcessManager {
         &mut self,
         command: &Command,
         event_tx: mpsc::UnboundedSender<AppEvent>,
-    ) -> Result<()> {
+    ) -> Result<Pid> {
         let command_id = command.id();
         let command_str = command.command();
 
@@ -58,11 +58,22 @@ impl ProcessManager {
         });
 
         let child = Arc::new(Mutex::new(child));
+        let monitor_child = child.clone();
+
+        let exit_tx = event_tx;
+        tokio::spawn(async move {
+            let mut child = monitor_child.lock().await;
+            if let Ok(status) = child.wait().await {
+                let exit_code = status.code().unwrap_or(-1);
+                let _ = exit_tx.send(AppEvent::ProcessExited(command_id, ExitCode(exit_code)));
+            }
+        });
+
         let pid = Pid(pid);
         let handle = ProcessHandle { _pid: pid, child };
 
         self.handlers.insert(command_id, handle);
 
-        Ok(())
+        Ok(pid)
     }
 }
