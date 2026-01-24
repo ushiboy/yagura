@@ -1,7 +1,5 @@
 use uuid::Uuid;
 
-use crate::app::OutputLine;
-
 use super::OutputBuffer;
 
 pub struct Command {
@@ -19,8 +17,8 @@ impl Command {
         &self.command
     }
 
-    pub fn output_lines(&self) -> Vec<&OutputLine> {
-        self.output_buffer.lines().iter().collect()
+    pub fn output_buffer(&self) -> &OutputBuffer {
+        &self.output_buffer
     }
 }
 

@@ -26,6 +26,10 @@ impl OutputBuffer {
         &self.lines
     }
 
+    pub fn line_length(&self) -> usize {
+        self.lines.len()
+    }
+
     pub fn slice_lines(&self, start: usize, size: usize) -> Vec<&OutputLine> {
         self.lines.iter().skip(start).take(size).collect()
     }

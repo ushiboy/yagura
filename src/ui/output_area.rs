@@ -6,17 +6,20 @@ use ratatui::{
     widgets::{Block, Borders, Paragraph},
 };
 
-pub fn render(frame: &mut Frame, area: Rect, _app: &App) {
-    let command = _app.get_selected_command();
+pub fn render(frame: &mut Frame, area: Rect, app: &App) {
+    let command = app.get_selected_command();
+
+    let viewport_height = area.height.saturating_sub(2) as usize;
 
     let content = if let Some(cmd) = command {
-        let lines: Vec<Line> = cmd
-            .output_lines()
+        let total_lines = cmd.output_buffer().line_length();
+        let scroll_offset = total_lines.saturating_sub(viewport_height);
+
+        cmd.output_buffer()
+            .slice_lines(scroll_offset, viewport_height)
             .iter()
             .map(|line| Line::from(line.content().to_string()))
-            .collect();
-
-        lines
+            .collect()
     } else {
         vec![Line::from("No command selected.")]
     };
