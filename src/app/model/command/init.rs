@@ -11,6 +11,9 @@ impl Command {
             command,
             output_buffer: OutputBuffer::default(),
             status: CommandStatus::Stopped,
+            pid: None,
+            start_time: None,
+            end_time: None,
         }
     }
 }

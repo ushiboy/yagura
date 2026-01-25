@@ -1,6 +1,8 @@
+use std::time::{Duration, Instant};
+
 use uuid::Uuid;
 
-use crate::process::ExitCode;
+use crate::process::{ExitCode, Pid};
 
 use super::OutputBuffer;
 
@@ -9,6 +11,9 @@ pub struct Command {
     command: String,
     output_buffer: OutputBuffer,
     status: CommandStatus,
+    pid: Option<Pid>,
+    start_time: Option<Instant>,
+    end_time: Option<Instant>,
 }
 
 impl Command {
@@ -26,6 +31,18 @@ impl Command {
 
     pub fn status(&self) -> &CommandStatus {
         &self.status
+    }
+
+    pub fn pid(&self) -> Option<Pid> {
+        self.pid
+    }
+
+    pub fn elapsed_time(&self) -> Option<Duration> {
+        match (self.start_time, self.end_time) {
+            (Some(start), Some(end)) => Some(end.duration_since(start)),
+            (Some(start), None) => Some(Instant::now().duration_since(start)),
+            _ => None,
+        }
     }
 }
 
