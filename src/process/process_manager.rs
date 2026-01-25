@@ -1,7 +1,5 @@
 use std::collections::HashMap;
-use std::sync::Arc;
-use tokio::process::Child;
-use tokio::sync::Mutex;
+use tokio::sync::oneshot;
 
 use crate::process::Pid;
 
@@ -13,7 +11,7 @@ pub struct ProcessManager {
 
 pub struct ProcessHandle {
     _pid: Pid,
-    child: Arc<Mutex<Child>>,
+    kill_tx: oneshot::Sender<()>,
 }
 
 mod init;

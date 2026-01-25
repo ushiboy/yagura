@@ -3,10 +3,10 @@ use anyhow::{Context, Result};
 use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
 use crate::process::{ExitCode, Pid};
-use std::{process::Stdio, sync::Arc};
+use std::process::Stdio;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
-use tokio::sync::{Mutex, mpsc};
+use tokio::sync::{mpsc, oneshot};
 
 use super::{ProcessHandle, ProcessManager};
 
@@ -36,6 +36,7 @@ impl ProcessManager {
             .context("Failed to spawn process")?;
 
         let pid = child.id().context("Failed to get process ID")?;
+        let (kill_tx, kill_rx) = oneshot::channel::<()>();
 
         let stdout = child.stdout.take().context("Failed to take stdout")?;
         let stdout_tx = event_tx.clone();
@@ -57,20 +58,25 @@ impl ProcessManager {
             }
         });
 
-        let child = Arc::new(Mutex::new(child));
-        let monitor_child = child.clone();
-
         let exit_tx = event_tx;
         tokio::spawn(async move {
-            let mut child = monitor_child.lock().await;
-            if let Ok(status) = child.wait().await {
+            let status = tokio::select! {
+                status = child.wait() => status,
+                _ = kill_rx => {
+                    let _ = child.kill().await;
+                    child.wait().await
+                }
+            };
+
+            if let Ok(status) = status {
+                // TODO: Handle the case where code() returns None (e.g., terminated by signal)
                 let exit_code = status.code().unwrap_or(-1);
                 let _ = exit_tx.send(AppEvent::ProcessExited(command_id, ExitCode(exit_code)));
             }
         });
 
         let pid = Pid(pid);
-        let handle = ProcessHandle { _pid: pid, child };
+        let handle = ProcessHandle { _pid: pid, kill_tx };
 
         self.handlers.insert(command_id, handle);
 
