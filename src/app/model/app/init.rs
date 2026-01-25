@@ -1,4 +1,5 @@
-use super::App;
+use super::{App, AppMode};
+
 impl Default for App {
     fn default() -> Self {
         Self::new()
@@ -11,6 +12,7 @@ impl App {
             commands: vec![],
             selected_index: None,
             should_quit: false,
+            mode: AppMode::Normal,
         }
     }
 }
@@ -24,5 +26,6 @@ mod tests {
         assert!(app.commands.is_empty());
         assert_eq!(app.selected_index, None);
         assert_eq!(app.should_quit(), false);
+        assert_eq!(app.mode, AppMode::Normal);
     }
 }

@@ -4,6 +4,7 @@ pub struct App {
     commands: Vec<Command>,
     selected_index: Option<usize>,
     should_quit: bool,
+    mode: AppMode,
 }
 
 impl App {
@@ -18,6 +19,15 @@ impl App {
     pub fn selected_command_index(&self) -> Option<usize> {
         self.selected_index
     }
+
+    pub fn mode(&self) -> &AppMode {
+        &self.mode
+    }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum AppMode {
+    Normal,
 }
 
 mod add_command;
