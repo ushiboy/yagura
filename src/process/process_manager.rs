@@ -11,10 +11,11 @@ pub struct ProcessManager {
 
 pub struct ProcessHandle {
     _pid: Pid,
-    kill_tx: oneshot::Sender<()>,
+    kill_tx: Option<oneshot::Sender<()>>,
 }
 
 mod init;
+mod on_process_existed;
 mod shutdown_all;
 mod spawn;
 mod stop;

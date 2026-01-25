@@ -126,6 +126,7 @@ async fn main_loop(
                 }
                 AppEvent::ProcessExited(command_id, exit_code) => {
                     app.mark_command_exit(command_id, exit_code);
+                    process_manager.on_process_existed(command_id);
                 }
             }
         }

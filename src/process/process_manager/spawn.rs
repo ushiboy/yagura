@@ -76,7 +76,10 @@ impl ProcessManager {
         });
 
         let pid = Pid(pid);
-        let handle = ProcessHandle { _pid: pid, kill_tx };
+        let handle = ProcessHandle {
+            _pid: pid,
+            kill_tx: Some(kill_tx),
+        };
 
         self.handlers.insert(command_id, handle);
 
