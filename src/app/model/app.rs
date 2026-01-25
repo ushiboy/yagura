@@ -28,11 +28,13 @@ impl App {
 #[derive(Debug, PartialEq)]
 pub enum AppMode {
     Normal,
+    AddingCommand,
 }
 
 mod add_command;
 mod add_output_line;
 mod init;
 mod mark_command;
+mod mode;
 mod quit;
 mod select;

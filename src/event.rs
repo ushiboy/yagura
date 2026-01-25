@@ -10,5 +10,8 @@ pub enum AppEvent {
     ProcessExited(Uuid, ExitCode),
 }
 
+mod handle_adding_command_mode;
+mod handle_key_event;
 mod handle_normal_mode;
-pub use handle_normal_mode::handle_normal_mode;
+
+pub use handle_key_event::handle_key_event;

@@ -10,7 +10,7 @@ use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
     app::{App, add_command},
-    event::{AppEvent, handle_normal_mode},
+    event::{AppEvent, handle_key_event},
     process::ProcessManager,
     ui,
 };
@@ -96,7 +96,7 @@ async fn main_loop(
                     // ignore
                 }
                 AppEvent::Key(key) => {
-                    handle_normal_mode(app, process_manager, key, event_tx.clone()).await?
+                    handle_key_event(app, process_manager, key, event_tx.clone()).await?
                 }
                 AppEvent::ProcessOutput(command_id, output_line) => {
                     app.add_output_line(command_id, output_line);
