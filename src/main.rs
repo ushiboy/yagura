@@ -1,6 +1,6 @@
 use anyhow::Result;
 use crossterm::{
-    event::{Event, KeyCode, KeyModifiers},
+    event::Event,
     execute,
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
@@ -9,8 +9,8 @@ use std::{io, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
-    app::{App, CommandStatus, add_command},
-    event::AppEvent,
+    app::{App, add_command},
+    event::{AppEvent, handle_normal_mode},
     process::ProcessManager,
     ui,
 };
@@ -95,32 +95,9 @@ async fn main_loop(
                 AppEvent::Tick => {
                     // ignore
                 }
-                AppEvent::Key(key) => match key.code {
-                    KeyCode::Char('q') => app.quit(),
-                    KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-                        app.quit()
-                    }
-                    KeyCode::Char('j') | KeyCode::Down => app.select_next_commmand(),
-                    KeyCode::Char('k') | KeyCode::Up => app.select_previous_command(),
-                    KeyCode::Enter => {
-                        if let Some(command) = app.get_selected_command() {
-                            match command.status() {
-                                CommandStatus::Running => {
-                                    process_manager.stop(command.id()).await?;
-                                }
-                                CommandStatus::Stopped | CommandStatus::Error(_) => {
-                                    match process_manager.spawn(command, event_tx.clone()).await {
-                                        Ok(pid) => {
-                                            app.mark_command_run(command.id(), pid);
-                                        }
-                                        Err(_e) => {}
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    _ => {}
-                },
+                AppEvent::Key(key) => {
+                    handle_normal_mode(app, process_manager, key, event_tx.clone()).await?
+                }
                 AppEvent::ProcessOutput(command_id, output_line) => {
                     app.add_output_line(command_id, output_line);
                 }
