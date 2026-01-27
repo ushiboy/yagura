@@ -1,4 +1,4 @@
-use super::{App, AppMode};
+use super::{App, AppMode, Form};
 
 impl Default for App {
     fn default() -> Self {
@@ -13,6 +13,7 @@ impl App {
             selected_index: None,
             should_quit: false,
             mode: AppMode::Normal,
+            form: Form::new(),
         }
     }
 }

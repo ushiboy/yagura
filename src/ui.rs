@@ -1,3 +1,4 @@
+mod add_command_dialog;
 mod command_list;
 mod output_area;
 mod render;

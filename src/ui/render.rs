@@ -1,5 +1,8 @@
 use ratatui::Frame;
 
+use crate::app::AppMode;
+
+use super::add_command_dialog;
 use super::command_list;
 use super::output_area;
 
@@ -13,4 +16,13 @@ pub fn render(frame: &mut Frame, app: &App) {
     command_list::render(frame, chunks[0], app);
 
     output_area::render(frame, chunks[1], app);
+
+    match app.mode() {
+        AppMode::Normal => {
+            // ignore
+        }
+        AppMode::AddingCommand => {
+            add_command_dialog::render(frame, app);
+        }
+    }
 }

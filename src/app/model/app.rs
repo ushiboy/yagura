@@ -1,10 +1,11 @@
-use super::Command;
+use super::{Command, Form};
 
 pub struct App {
     commands: Vec<Command>,
     selected_index: Option<usize>,
     should_quit: bool,
     mode: AppMode,
+    form: Form,
 }
 
 impl App {
@@ -22,6 +23,14 @@ impl App {
 
     pub fn mode(&self) -> &AppMode {
         &self.mode
+    }
+
+    pub fn form(&self) -> &Form {
+        &self.form
+    }
+
+    pub fn form_mut(&mut self) -> &mut Form {
+        &mut self.form
     }
 }
 
