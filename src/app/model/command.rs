@@ -9,6 +9,7 @@ use super::OutputBuffer;
 pub struct Command {
     id: Uuid,
     command: String,
+    working_dir: Option<String>,
     output_buffer: OutputBuffer,
     status: CommandStatus,
     pid: Option<Pid>,
@@ -23,6 +24,10 @@ impl Command {
 
     pub fn command(&self) -> &str {
         &self.command
+    }
+
+    pub fn working_dir(&self) -> Option<&str> {
+        self.working_dir.as_deref()
     }
 
     pub fn output_buffer(&self) -> &OutputBuffer {

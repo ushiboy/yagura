@@ -27,13 +27,18 @@ impl ProcessManager {
         let program = parts[0];
         let args = &parts[1..];
 
-        let mut child = TokioCommand::new(program)
+        let mut cmd_builder = TokioCommand::new(program);
+        cmd_builder
             .args(args)
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .kill_on_drop(true)
-            .spawn()
-            .context("Failed to spawn process")?;
+            .kill_on_drop(true);
+
+        if let Some(working_dir) = command.working_dir() {
+            cmd_builder.current_dir(working_dir);
+        }
+
+        let mut child = cmd_builder.spawn().context("Failed to spawn process")?;
 
         let pid = child.id().context("Failed to get process ID")?;
         let (kill_tx, kill_rx) = oneshot::channel::<()>();

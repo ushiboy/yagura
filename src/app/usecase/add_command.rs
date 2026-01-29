@@ -1,7 +1,7 @@
 use crate::app::{App, Command};
 
-pub fn add_command(app: &mut App, command_text: String) {
-    let command = Command::new(command_text);
+pub fn add_command(app: &mut App, command_text: String, working_dir: Option<String>) {
+    let command = Command::new(command_text, working_dir);
     let command_id = command.id();
     app.add_command(command);
     app.select_command_by_id(command_id);
@@ -17,7 +17,7 @@ mod tests {
         assert_eq!(app.commands().len(), 0);
         assert!(app.selected_command_index().is_none());
 
-        add_command(&mut app, "ls -la".to_string());
+        add_command(&mut app, "ls -la".to_string(), None);
 
         assert_eq!(app.commands().len(), 1);
         assert_eq!(app.commands()[0].command(), "ls -la");
@@ -27,8 +27,8 @@ mod tests {
     #[test]
     fn test_add_command_to_app_with_existing_commands() {
         let mut app = App::new();
-        add_command(&mut app, "first command".to_string());
-        add_command(&mut app, "second command".to_string());
+        add_command(&mut app, "first command".to_string(), None);
+        add_command(&mut app, "second command".to_string(), None);
 
         assert_eq!(app.commands().len(), 2);
         assert_eq!(app.commands()[0].command(), "first command");
@@ -39,14 +39,14 @@ mod tests {
     #[test]
     fn test_add_command_when_selection_is_not_at_end() {
         let mut app = App::new();
-        add_command(&mut app, "first".to_string());
-        add_command(&mut app, "second".to_string());
-        add_command(&mut app, "third".to_string());
+        add_command(&mut app, "first".to_string(), None);
+        add_command(&mut app, "second".to_string(), None);
+        add_command(&mut app, "third".to_string(), None);
 
         app.select_command_by_id(app.commands()[0].id());
         assert_eq!(app.selected_command_index(), Some(0));
 
-        add_command(&mut app, "fourth".to_string());
+        add_command(&mut app, "fourth".to_string(), None);
 
         assert_eq!(app.commands().len(), 4);
         assert_eq!(app.selected_command_index(), Some(3));

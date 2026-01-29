@@ -11,10 +11,18 @@ pub async fn handle_adding_command_mode(app: &mut App, key: KeyEvent) -> Result<
         KeyCode::Backspace => {
             app.form_mut().pop_char();
         }
+        KeyCode::Tab => {
+            app.form_mut().toggle_focused_input();
+        }
         KeyCode::Enter => {
             let form = app.form();
             let command_text = form.command_input().to_string();
-            add_command(app, command_text);
+            let working_dir = if form.working_dir_input().is_empty() {
+                None
+            } else {
+                Some(form.working_dir_input().to_string())
+            };
+            add_command(app, command_text, working_dir);
             app.change_normal_mode();
         }
         _ => { /* Ignore other keys */ }

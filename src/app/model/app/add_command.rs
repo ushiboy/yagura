@@ -15,7 +15,7 @@ mod tests {
     #[test]
     fn test_app_add_command() {
         let mut app = App::new();
-        let command = Command::new("ls -la".to_string());
+        let command = Command::new("ls -la".to_string(), None);
 
         app.add_command(command);
 

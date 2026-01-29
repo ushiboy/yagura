@@ -43,6 +43,8 @@ pub fn render(frame: &mut Frame, app: &App) {
             Constraint::Length(1),
             Constraint::Length(1),
             Constraint::Length(1),
+            Constraint::Length(1),
+            Constraint::Length(1),
             Constraint::Length(2),
         ])
         .split(inner);
@@ -51,10 +53,15 @@ pub fn render(frame: &mut Frame, app: &App) {
     let command_input =
         Paragraph::new(app.form().command_input()).style(Style::default().fg(Color::Gray));
 
+    let working_dir_label =
+        Paragraph::new("Working directory (optional):").style(Style::default().fg(Color::White));
+    let working_dir_input =
+        Paragraph::new(app.form().working_dir_input()).style(Style::default().fg(Color::Gray));
+
     let help_text = vec![
         Line::from(""),
         Line::from(Span::styled(
-            "Enter: add | Esc: cancel",
+            "Tab: switch fields | Enter: add | Esc: cancel",
             Style::default().fg(Color::DarkGray),
         )),
     ];
@@ -64,5 +71,7 @@ pub fn render(frame: &mut Frame, app: &App) {
     frame.render_widget(block, area);
     frame.render_widget(command_label, chunks[0]);
     frame.render_widget(command_input, chunks[1]);
+    frame.render_widget(working_dir_label, chunks[3]);
+    frame.render_widget(working_dir_input, chunks[4]);
     frame.render_widget(help, chunks[4]);
 }
