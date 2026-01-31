@@ -1,8 +1,10 @@
 use anyhow::{Context, Result};
+use tokio::time::{Duration, timeout};
 
 use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
 use crate::process::{ExitCode, Pid};
+use nix::sys::signal::{Signal, killpg};
 use std::process::Stdio;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
@@ -34,6 +36,14 @@ impl ProcessManager {
             .stderr(Stdio::piped())
             .kill_on_drop(true);
 
+        unsafe {
+            cmd_builder.pre_exec(|| {
+                nix::unistd::setsid()
+                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+                Ok(())
+            });
+        }
+
         if let Some(working_dir) = command.working_dir() {
             cmd_builder.current_dir(working_dir);
         }
@@ -63,13 +73,22 @@ impl ProcessManager {
             }
         });
 
+        let gpid = nix::unistd::Pid::from_raw(pid as i32);
+
         let exit_tx = event_tx;
         tokio::spawn(async move {
             let status = tokio::select! {
                 status = child.wait() => status,
                 _ = kill_rx => {
-                    let _ = child.kill().await;
-                    child.wait().await
+                    let _ = killpg(gpid, Signal::SIGINT);
+
+                    match timeout(Duration::from_secs(5), child.wait()).await {
+                        Ok(status) => status,
+                        Err(_) => {
+                            let _ = killpg(gpid, Signal::SIGKILL);
+                            child.wait().await
+                        }
+                    }
                 }
             };
 
