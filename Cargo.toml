@@ -8,6 +8,7 @@ license = "MIT"
 anyhow = "1.0.100"
 chrono = "0.4.43"
 crossterm = "0.29.0"
+nix = { version = "0.31.1", features = ["signal", "process"] }
 ratatui = "0.30.0"
 tokio = { version = "1.49.0", features = ["full"] }
 tokio-util = "0.7.18"
