@@ -4,18 +4,25 @@ use super::OutputBuffer;
 use uuid::{NoContext, Timestamp, Uuid};
 
 impl Command {
-    pub fn new(command: String, working_dir: Option<String>) -> Self {
+    // Creates a new command with the given command string.
+    pub fn new(command: String) -> Self {
         let ts = Timestamp::now(NoContext);
         Self {
             id: Uuid::new_v7(ts),
             command,
-            working_dir,
+            working_dir: None,
             output_buffer: OutputBuffer::default(),
             status: CommandStatus::Stopped,
             pid: None,
             start_time: None,
             end_time: None,
         }
+    }
+
+    // Sets the working directory for the command.
+    pub fn with_working_dir(mut self, dir: Option<impl Into<String>>) -> Self {
+        self.working_dir = dir.map(|d| d.into());
+        self
     }
 }
 
@@ -25,7 +32,13 @@ mod tests {
 
     #[test]
     fn test_command_new() {
-        let command = Command::new("sleep".to_string(), None);
+        let command = Command::new("sleep".to_string());
         assert_eq!(command.command(), "sleep");
+    }
+
+    #[test]
+    fn test_command_with_working_dir() {
+        let command = Command::new("ls".to_string()).with_working_dir(Some("/tmp"));
+        assert_eq!(command.working_dir(), Some("/tmp"));
     }
 }

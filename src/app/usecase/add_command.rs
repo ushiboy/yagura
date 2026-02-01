@@ -1,7 +1,7 @@
 use crate::app::{App, Command};
 
 pub fn add_command(app: &mut App, command_text: String, working_dir: Option<String>) {
-    let command = Command::new(command_text, working_dir);
+    let command = Command::new(command_text).with_working_dir(working_dir);
     let command_id = command.id();
     app.add_command(command);
     app.select_command_by_id(command_id);
