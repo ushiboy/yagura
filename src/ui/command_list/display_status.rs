@@ -4,7 +4,7 @@ pub fn display_status(status: &CommandStatus) -> String {
     match status {
         CommandStatus::Stopped => "Stopped".to_string(),
         CommandStatus::Running => "Running".to_string(),
-        CommandStatus::Error(code) => format!("ERROR:{}", code.0),
+        CommandStatus::Error(code) => format!("ERROR:{}", code),
     }
 }
 
@@ -27,7 +27,7 @@ mod tests {
 
     #[test]
     fn test_display_status_error_with_zero() {
-        let status = CommandStatus::Error(ExitCode(1));
+        let status = CommandStatus::Error(ExitCode::Code(1));
         assert_eq!(display_status(&status), "ERROR:1");
     }
 }

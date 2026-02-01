@@ -1,5 +1,7 @@
 use std::time::Instant;
 
+use nix::sys::signal::Signal;
+
 use crate::process::{ExitCode, Pid};
 
 use super::{Command, CommandStatus};
@@ -13,10 +15,9 @@ impl Command {
     }
 
     pub fn mark_exit(&mut self, exit_code: ExitCode) {
-        self.status = if exit_code.is_success() {
-            CommandStatus::Stopped
-        } else {
-            CommandStatus::Error(exit_code)
+        self.status = match exit_code {
+            ExitCode::Signal(Signal::SIGINT | Signal::SIGKILL) => CommandStatus::Stopped,
+            other => CommandStatus::Error(other),
         };
         self.pid = None;
         self.end_time = Some(Instant::now());

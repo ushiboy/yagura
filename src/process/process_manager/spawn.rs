@@ -5,11 +5,12 @@ use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
 use crate::process::{ExitCode, Pid};
 use nix::sys::signal::{Signal, killpg};
+use std::os::unix::process::ExitStatusExt;
 use std::process::Stdio;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
 use tokio::sync::{mpsc, oneshot};
-
+use std::io::Error;
 use super::{ProcessHandle, ProcessManager};
 
 impl ProcessManager {
@@ -39,7 +40,7 @@ impl ProcessManager {
         unsafe {
             cmd_builder.pre_exec(|| {
                 nix::unistd::setsid()
-                    .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+                    .map_err(Error::other)?;
                 Ok(())
             });
         }
@@ -93,9 +94,14 @@ impl ProcessManager {
             };
 
             if let Ok(status) = status {
-                // TODO: Handle the case where code() returns None (e.g., terminated by signal)
-                let exit_code = status.code().unwrap_or(-1);
-                let _ = exit_tx.send(AppEvent::ProcessExited(command_id, ExitCode(exit_code)));
+                let exit_code = if let Some(code) = status.code() {
+                    ExitCode::Code(code)
+                } else if let Some(signal) = status.signal() {
+                    ExitCode::Signal(Signal::try_from(signal).unwrap())
+                } else {
+                    ExitCode::Code(-1) // Unknown exit status
+                };
+                let _ = exit_tx.send(AppEvent::ProcessExited(command_id, exit_code));
             }
         });
 
