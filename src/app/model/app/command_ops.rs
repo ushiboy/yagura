@@ -24,7 +24,7 @@ mod tests {
     #[test]
     fn test_add_command() {
         let mut app = App::new();
-        let command = Command::new("ls -la".to_string());
+        let command = Command::new("ls -la");
 
         app.add_command(command);
 
@@ -35,8 +35,8 @@ mod tests {
     #[test]
     fn test_remove_selected_command() {
         let mut app = App::new();
-        let command1 = Command::new("ls -la".to_string());
-        let command2 = Command::new("pwd".to_string());
+        let command1 = Command::new("ls -la");
+        let command2 = Command::new("pwd");
         app.add_command(command1);
         app.add_command(command2);
         app.selected_index = Some(0);
@@ -51,7 +51,7 @@ mod tests {
     #[test]
     fn test_remove_selected_command_no_selection() {
         let mut app = App::new();
-        let command = Command::new("ls -la".to_string());
+        let command = Command::new("ls -la");
         app.add_command(command);
         app.selected_index = None;
 

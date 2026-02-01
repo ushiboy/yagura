@@ -5,11 +5,11 @@ use uuid::{NoContext, Timestamp, Uuid};
 
 impl Command {
     // Creates a new command with the given command string.
-    pub fn new(command: String) -> Self {
+    pub fn new(command: impl Into<String>) -> Self {
         let ts = Timestamp::now(NoContext);
         Self {
             id: Uuid::new_v7(ts),
-            command,
+            command: command.into(),
             working_dir: None,
             output_buffer: OutputBuffer::default(),
             status: CommandStatus::Stopped,
@@ -32,13 +32,14 @@ mod tests {
 
     #[test]
     fn test_command_new() {
-        let command = Command::new("sleep".to_string());
+        let command = Command::new("sleep");
         assert_eq!(command.command(), "sleep");
     }
 
     #[test]
     fn test_command_with_working_dir() {
-        let command = Command::new("ls".to_string()).with_working_dir(Some("/tmp"));
+        let command = Command::new("ls").with_working_dir(Some("/tmp"));
+        assert_eq!(command.command(), "ls");
         assert_eq!(command.working_dir(), Some("/tmp"));
     }
 }

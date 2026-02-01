@@ -51,7 +51,7 @@ mod tests {
     #[test]
     fn test_select_command_by_id() {
         let mut app = App::new();
-        let command = Command::new("ls -la".to_string());
+        let command = Command::new("ls -la");
         app.add_command(command);
 
         assert!(app.selected_index.is_none());
@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn test_get_selected_command() {
         let mut app = App::new();
-        let command = Command::new("ls -la".to_string());
+        let command = Command::new("ls -la");
         let command_id = command.id();
         app.add_command(command);
         app.select_command_by_id(command_id);
@@ -85,9 +85,9 @@ mod tests {
     #[test]
     fn test_select_next_command_with_none_selected() {
         let mut app = App::new();
-        app.add_command(Command::new("ls -la".to_string()));
-        app.add_command(Command::new("pwd".to_string()));
-        app.add_command(Command::new("echo test".to_string()));
+        app.add_command(Command::new("ls -la"));
+        app.add_command(Command::new("pwd"));
+        app.add_command(Command::new("echo test"));
         assert!(app.selected_index.is_none());
 
         app.select_next_commmand();
@@ -98,9 +98,9 @@ mod tests {
     #[test]
     fn test_select_next_command_increments_index() {
         let mut app = App::new();
-        app.add_command(Command::new("ls -la".to_string()));
-        app.add_command(Command::new("pwd".to_string()));
-        app.add_command(Command::new("echo test".to_string()));
+        app.add_command(Command::new("ls -la"));
+        app.add_command(Command::new("pwd"));
+        app.add_command(Command::new("echo test"));
         app.selected_index = Some(0);
 
         app.select_next_commmand();
@@ -115,9 +115,9 @@ mod tests {
     #[test]
     fn test_select_next_command_wraps_around() {
         let mut app = App::new();
-        app.add_command(Command::new("ls -la".to_string()));
-        app.add_command(Command::new("pwd".to_string()));
-        app.add_command(Command::new("echo test".to_string()));
+        app.add_command(Command::new("ls -la"));
+        app.add_command(Command::new("pwd"));
+        app.add_command(Command::new("echo test"));
         app.selected_index = Some(2);
 
         app.select_next_commmand();
@@ -139,9 +139,9 @@ mod tests {
     #[test]
     fn test_select_previous_command_with_none_selected() {
         let mut app = App::new();
-        app.add_command(Command::new("ls -la".to_string()));
-        app.add_command(Command::new("pwd".to_string()));
-        app.add_command(Command::new("echo test".to_string()));
+        app.add_command(Command::new("ls -la"));
+        app.add_command(Command::new("pwd"));
+        app.add_command(Command::new("echo test"));
         assert!(app.selected_index.is_none());
 
         app.select_previous_command();
@@ -152,9 +152,9 @@ mod tests {
     #[test]
     fn test_select_previous_command_decrements_index() {
         let mut app = App::new();
-        app.add_command(Command::new("ls -la".to_string()));
-        app.add_command(Command::new("pwd".to_string()));
-        app.add_command(Command::new("echo test".to_string()));
+        app.add_command(Command::new("ls -la"));
+        app.add_command(Command::new("pwd"));
+        app.add_command(Command::new("echo test"));
         app.selected_index = Some(2);
 
         app.select_previous_command();
@@ -169,9 +169,9 @@ mod tests {
     #[test]
     fn test_select_previous_command_wraps_around() {
         let mut app = App::new();
-        app.add_command(Command::new("ls -la".to_string()));
-        app.add_command(Command::new("pwd".to_string()));
-        app.add_command(Command::new("echo test".to_string()));
+        app.add_command(Command::new("ls -la"));
+        app.add_command(Command::new("pwd"));
+        app.add_command(Command::new("echo test"));
         app.selected_index = Some(0);
 
         app.select_previous_command();
