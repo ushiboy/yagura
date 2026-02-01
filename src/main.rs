@@ -27,8 +27,13 @@ async fn main() -> Result<()> {
     let mut app = App::new();
     let mut process_manager = ProcessManager::new();
 
-    app.add_command(Command::new("date"));
-    app.add_command(Command::new("ls -alt"));
+    app.add_command(Command::new("cargo fmt"));
+    app.add_command(Command::new(
+        "cargo clippy --fix --bin yagura --allow-dirty",
+    ));
+    app.add_command(Command::new("cargo test"));
+    app.add_command(Command::new("cargo build"));
+    app.add_command(Command::new("cargo build --release"));
 
     let cancel_token = CancellationToken::new();
     let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
