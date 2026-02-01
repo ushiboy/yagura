@@ -51,10 +51,14 @@ async fn main() -> Result<()> {
         }
     });
 
+    let cancel_tick_token = cancel_token.clone();
     let tick_tx = event_tx.clone();
     tokio::spawn(async move {
         let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
         loop {
+            if cancel_tick_token.is_cancelled() {
+                break;
+            }
             interval.tick().await;
             let _ = tick_tx.send(AppEvent::Tick);
         }
