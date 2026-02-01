@@ -33,6 +33,7 @@ impl ProcessManager {
         let mut cmd_builder = TokioCommand::new(program);
         cmd_builder
             .args(args)
+            .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
             .kill_on_drop(true);
