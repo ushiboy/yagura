@@ -68,6 +68,13 @@ impl Form {
         };
     }
 
+    // Clear both input fields and reset focus to command input
+    pub fn clear(&mut self) {
+        self.command_input.clear();
+        self.working_dir_input.clear();
+        self.focused_input = FocusedInput::Command;
+    }
+
     #[cfg(test)]
     pub(super) fn set_command_input(&mut self, input: impl Into<String>) {
         self.command_input = input.into();
@@ -124,5 +131,19 @@ mod tests {
         form.toggle_focused_input();
 
         matches!(form.focused_input(), FocusedInput::WorkingDir);
+    }
+
+    #[test]
+    fn test_form_clear() {
+        let mut form = Form::new();
+        form.set_command_input("cmd");
+        form.set_working_dir_input("/path/to/dir");
+        form.set_focused_input(FocusedInput::WorkingDir);
+
+        form.clear();
+
+        assert_eq!(form.command_input(), "");
+        assert_eq!(form.working_dir_input(), "");
+        matches!(form.focused_input(), FocusedInput::Command);
     }
 }
