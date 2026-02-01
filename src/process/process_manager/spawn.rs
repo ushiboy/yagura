@@ -1,17 +1,17 @@
 use anyhow::{Context, Result};
 use tokio::time::{Duration, timeout};
 
+use super::{ProcessHandle, ProcessManager};
 use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
 use crate::process::{ExitCode, Pid};
 use nix::sys::signal::{Signal, killpg};
+use std::io::Error;
 use std::os::unix::process::ExitStatusExt;
 use std::process::Stdio;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::Command as TokioCommand;
 use tokio::sync::{mpsc, oneshot};
-use std::io::Error;
-use super::{ProcessHandle, ProcessManager};
 
 impl ProcessManager {
     pub async fn spawn(
@@ -40,8 +40,7 @@ impl ProcessManager {
 
         unsafe {
             cmd_builder.pre_exec(|| {
-                nix::unistd::setsid()
-                    .map_err(Error::other)?;
+                nix::unistd::setsid().map_err(Error::other)?;
                 Ok(())
             });
         }
