@@ -29,15 +29,14 @@ mod tests {
         let mut app = App::new();
         app.change_adding_mode();
         let form = app.form_mut();
-        form.push_char('c');
-        form.toggle_focused_input();
-        form.push_char('w');
+        form.set_command_input("ls");
+        form.set_working_dir_input("./tmp");
 
         app.confirm_add_command();
 
         assert_eq!(app.commands().len(), 1);
-        assert_eq!(app.commands()[0].command(), "c");
-        assert_eq!(app.commands()[0].working_dir().as_deref(), Some("w"));
+        assert_eq!(app.commands()[0].command(), "ls");
+        assert_eq!(app.commands()[0].working_dir().as_deref(), Some("./tmp"));
         assert_eq!(app.selected_command_index(), Some(0));
         assert_eq!(app.mode(), &AppMode::Normal);
     }
@@ -63,12 +62,12 @@ mod tests {
         app.add_command(Command::new("second"));
         app.change_adding_mode();
         let form = app.form_mut();
-        form.push_char('t');
+        form.set_command_input("third");
 
         app.confirm_add_command();
 
         assert_eq!(app.commands().len(), 3);
-        assert_eq!(app.commands()[2].command(), "t");
+        assert_eq!(app.commands()[2].command(), "third");
         assert_eq!(app.selected_command_index(), Some(2));
     }
 }
