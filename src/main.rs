@@ -9,7 +9,7 @@ use std::{io, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
-    app::{App, add_command},
+    app::{App, Command},
     event::{AppEvent, handle_key_event},
     process::ProcessManager,
     ui,
@@ -27,8 +27,8 @@ async fn main() -> Result<()> {
     let mut app = App::new();
     let mut process_manager = ProcessManager::new();
 
-    add_command(&mut app, "date".to_string(), None);
-    add_command(&mut app, "ls -alt".to_string(), None);
+    app.add_command(Command::new("date"));
+    app.add_command(Command::new("ls -alt"));
 
     let cancel_token = CancellationToken::new();
     let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
