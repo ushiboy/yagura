@@ -17,6 +17,7 @@ impl Command {
     pub fn mark_exit(&mut self, exit_code: ExitCode) {
         self.status = match exit_code {
             ExitCode::Signal(Signal::SIGINT | Signal::SIGKILL) => CommandStatus::Stopped,
+            ExitCode::Code(0) => CommandStatus::Stopped,
             other => CommandStatus::Error(other),
         };
         self.pid = None;
