@@ -1,10 +1,16 @@
 use super::{Command, Form};
 
+// The main application state
 pub struct App {
+    // List of commands managed by the application
     commands: Vec<Command>,
+    // Index of the currently selected command, if any
     selected_index: Option<usize>,
+    // Flag indicating whether the application should quit
     should_quit: bool,
+    // Current mode of the application
     mode: AppMode,
+    // Form for adding or editing commands
     form: Form,
 }
 
@@ -34,9 +40,12 @@ impl App {
     }
 }
 
+// Different modes the application can be in
 #[derive(Debug, PartialEq)]
 pub enum AppMode {
+    // Default mode for normal operation
     Normal,
+    // Mode for adding a new command
     AddingCommand,
 }
 
