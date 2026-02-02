@@ -1,7 +1,7 @@
 use chrono::{DateTime, Local};
 
 // Represents a single line of output with a timestamp.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OutputLine {
     // Timestamp when the output line was created.
     timestamp: DateTime<Local>,
