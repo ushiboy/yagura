@@ -73,5 +73,5 @@ pub fn render(frame: &mut Frame, app: &App) {
     frame.render_widget(command_input, chunks[1]);
     frame.render_widget(working_dir_label, chunks[3]);
     frame.render_widget(working_dir_input, chunks[4]);
-    frame.render_widget(help, chunks[4]);
+    frame.render_widget(help, chunks[6]);
 }
