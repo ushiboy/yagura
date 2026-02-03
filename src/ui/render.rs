@@ -1,6 +1,7 @@
 use ratatui::Frame;
 
 use crate::app::AppMode;
+use crate::ui::help_bar;
 
 use super::add_command_dialog;
 use super::command_list;
@@ -16,6 +17,8 @@ pub fn render(frame: &mut Frame, app: &App) {
     command_list::render(frame, chunks[0], app);
 
     output_area::render(frame, chunks[1], app);
+
+    help_bar::render(frame, chunks[2], app);
 
     match app.mode() {
         AppMode::Normal => {
