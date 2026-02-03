@@ -19,7 +19,7 @@ impl App {
         }
     }
 
-    pub fn select_next_commmand(&mut self) {
+    pub fn select_next_command(&mut self) {
         if self.commands.is_empty() {
             return;
         }
@@ -77,7 +77,7 @@ mod tests {
         assert!(app.commands().is_empty());
         assert!(app.selected_index.is_none());
 
-        app.select_next_commmand();
+        app.select_next_command();
 
         assert!(app.selected_index.is_none());
     }
@@ -90,7 +90,7 @@ mod tests {
         app.add_command(Command::new("echo test"));
         assert!(app.selected_index.is_none());
 
-        app.select_next_commmand();
+        app.select_next_command();
 
         assert_eq!(app.selected_index, Some(0));
     }
@@ -103,11 +103,11 @@ mod tests {
         app.add_command(Command::new("echo test"));
         app.selected_index = Some(0);
 
-        app.select_next_commmand();
+        app.select_next_command();
 
         assert_eq!(app.selected_index, Some(1));
 
-        app.select_next_commmand();
+        app.select_next_command();
 
         assert_eq!(app.selected_index, Some(2));
     }
@@ -120,7 +120,7 @@ mod tests {
         app.add_command(Command::new("echo test"));
         app.selected_index = Some(2);
 
-        app.select_next_commmand();
+        app.select_next_command();
 
         assert_eq!(app.selected_index, Some(0));
     }
