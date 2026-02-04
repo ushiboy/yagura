@@ -59,7 +59,7 @@ impl Command {
 }
 
 // Represents the status of a command.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum CommandStatus {
     Stopped,
     Running,

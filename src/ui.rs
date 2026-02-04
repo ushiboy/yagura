@@ -1,5 +1,6 @@
 mod add_command_dialog;
 mod command_list;
+mod delete_command_dialog;
 mod help_bar;
 mod output_area;
 mod render;

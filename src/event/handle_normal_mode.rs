@@ -16,6 +16,7 @@ pub async fn handle_normal_mode(
         KeyCode::Char('q') => app.quit(),
         KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => app.quit(),
         KeyCode::Char('a') => app.change_adding_mode(),
+        KeyCode::Char('d') => app.change_deleting_mode(),
         KeyCode::Char('j') | KeyCode::Down => app.select_next_command(),
         KeyCode::Char('k') | KeyCode::Up => app.select_previous_command(),
         KeyCode::Enter => {

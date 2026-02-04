@@ -11,6 +11,7 @@ pub enum AppEvent {
 }
 
 mod handle_adding_command_mode;
+mod handle_deleting_command_mode;
 mod handle_key_event;
 mod handle_normal_mode;
 

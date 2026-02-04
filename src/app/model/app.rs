@@ -47,6 +47,8 @@ pub enum AppMode {
     Normal,
     // Mode for adding a new command
     AddingCommand,
+    // Mode for deleting a command
+    DeletingCommand,
 }
 
 mod add_output_line;

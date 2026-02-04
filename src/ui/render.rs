@@ -1,6 +1,7 @@
 use ratatui::Frame;
 
 use crate::app::AppMode;
+use crate::ui::delete_command_dialog;
 use crate::ui::help_bar;
 
 use super::add_command_dialog;
@@ -26,6 +27,9 @@ pub fn render(frame: &mut Frame, app: &App) {
         }
         AppMode::AddingCommand => {
             add_command_dialog::render(frame, app);
+        }
+        AppMode::DeletingCommand => {
+            delete_command_dialog::render(frame, app);
         }
     }
 }
