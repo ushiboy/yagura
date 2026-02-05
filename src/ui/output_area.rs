@@ -3,7 +3,7 @@ use ratatui::{
     Frame,
     layout::Rect,
     text::Line,
-    widgets::{Block, Borders, Paragraph},
+    widgets::{Block, Borders, Paragraph, Wrap},
 };
 
 pub fn render(frame: &mut Frame, area: Rect, app: &App) {
@@ -24,8 +24,9 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         vec![Line::from("No command selected.")]
     };
 
-    let output =
-        Paragraph::new(content).block(Block::default().title(" Output ").borders(Borders::ALL));
+    let output = Paragraph::new(content)
+        .wrap(Wrap { trim: true })
+        .block(Block::default().title(" Output ").borders(Borders::ALL));
 
     frame.render_widget(output, area);
 }
