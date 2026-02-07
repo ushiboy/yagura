@@ -1,17 +1,17 @@
-use super::{Command, Form};
+use super::{Command, Form, UIState};
 
 // The main application state
 pub struct App {
     // List of commands managed by the application
     commands: Vec<Command>,
-    // Index of the currently selected command, if any
-    selected_index: Option<usize>,
     // Flag indicating whether the application should quit
     should_quit: bool,
     // Current mode of the application
     mode: AppMode,
     // Form for adding or editing commands
     form: Form,
+    // UI state of the application
+    ui_state: UIState,
 }
 
 impl App {
@@ -24,7 +24,7 @@ impl App {
     }
 
     pub fn selected_command_index(&self) -> Option<usize> {
-        self.selected_index
+        self.ui_state.command_list.selected_command_index
     }
 
     pub fn mode(&self) -> &AppMode {
