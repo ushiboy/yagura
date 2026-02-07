@@ -3,6 +3,7 @@ use std::collections::VecDeque;
 use super::OutputLine;
 
 // A buffer that holds multiple output lines with a maximum capacity.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct OutputBuffer {
     // The deque holding the output lines.
     lines: VecDeque<OutputLine>,

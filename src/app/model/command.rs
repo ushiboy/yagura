@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use uuid::Uuid;
 
 // Represents a command being executed in the system.
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Command {
     // Unique identifier for the command
     id: Uuid,
@@ -59,7 +60,7 @@ impl Command {
 }
 
 // Represents the status of a command.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CommandStatus {
     Stopped,
     Running,

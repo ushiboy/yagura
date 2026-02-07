@@ -8,6 +8,11 @@ impl App {
         self.commands.push(command);
     }
 
+    // Removes a specific command from the application's command list.
+    pub fn remove_command(&mut self, command: Command) {
+        self.commands.retain(|c| c != &command);
+    }
+
     // Removes the currently selected command from the application's command list.
     pub fn delete_selected_command(&mut self) {
         if let Some(index) = self.selected_index {
@@ -30,6 +35,23 @@ mod tests {
 
         assert_eq!(app.commands().len(), 1);
         assert_eq!(app.commands()[0].command(), "ls -la");
+    }
+
+    #[test]
+    fn test_remove_command() {
+        let mut app = App::new();
+        let command1 = Command::new("ls -la");
+        let command2 = Command::new("pwd");
+        let command3 = Command::new("whoami");
+        app.add_command(command1.clone());
+        app.add_command(command2.clone());
+        app.add_command(command3.clone());
+
+        app.remove_command(command1);
+
+        assert_eq!(app.commands().len(), 2);
+        assert_eq!(app.commands()[0].command(), "pwd");
+        assert_eq!(app.commands()[1].command(), "whoami");
     }
 
     #[test]
