@@ -1,4 +1,4 @@
-use super::{App, AppMode, Form, UIState};
+use super::{App, AppMode, UIState};
 
 impl Default for App {
     fn default() -> Self {
@@ -12,7 +12,6 @@ impl App {
             commands: vec![],
             should_quit: false,
             mode: AppMode::Normal,
-            form: Form::new(),
             ui_state: UIState::new(),
         }
     }

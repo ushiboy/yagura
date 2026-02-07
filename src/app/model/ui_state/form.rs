@@ -1,4 +1,5 @@
 // Model for the adding command form
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Form {
     // Input for the command to run
     command_input: String,
@@ -9,6 +10,7 @@ pub struct Form {
 }
 
 // Enum representing which input field is focused
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FocusedInput {
     // Input for the command to run
     Command,
@@ -76,17 +78,17 @@ impl Form {
     }
 
     #[cfg(test)]
-    pub(super) fn set_command_input(&mut self, input: impl Into<String>) {
+    pub fn set_command_input(&mut self, input: impl Into<String>) {
         self.command_input = input.into();
     }
 
     #[cfg(test)]
-    pub(super) fn set_working_dir_input(&mut self, input: impl Into<String>) {
+    pub fn set_working_dir_input(&mut self, input: impl Into<String>) {
         self.working_dir_input = input.into();
     }
 
     #[cfg(test)]
-    pub(super) fn set_focused_input(&mut self, focused: FocusedInput) {
+    pub fn set_focused_input(&mut self, focused: FocusedInput) {
         self.focused_input = focused;
     }
 }

@@ -1,4 +1,5 @@
-use super::{Command, Form, UIState};
+use super::ui_state::form::Form;
+use super::{Command, UIState};
 
 // The main application state
 pub struct App {
@@ -8,8 +9,6 @@ pub struct App {
     should_quit: bool,
     // Current mode of the application
     mode: AppMode,
-    // Form for adding or editing commands
-    form: Form,
     // UI state of the application
     ui_state: UIState,
 }
@@ -32,11 +31,11 @@ impl App {
     }
 
     pub fn form(&self) -> &Form {
-        &self.form
+        &self.ui_state.adding_command_form
     }
 
     pub fn form_mut(&mut self) -> &mut Form {
-        &mut self.form
+        &mut self.ui_state.adding_command_form
     }
 }
 
