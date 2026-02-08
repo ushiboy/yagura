@@ -1,4 +1,4 @@
-use super::ui_state::form::Form;
+use super::ui_state::form::AddingCommandForm;
 use super::{Command, UIState};
 
 // The main application state
@@ -30,11 +30,11 @@ impl App {
         &self.mode
     }
 
-    pub fn form(&self) -> &Form {
+    pub fn form(&self) -> &AddingCommandForm {
         &self.ui_state.adding_command_form
     }
 
-    pub fn form_mut(&mut self) -> &mut Form {
+    pub fn form_mut(&mut self) -> &mut AddingCommandForm {
         &mut self.ui_state.adding_command_form
     }
 }

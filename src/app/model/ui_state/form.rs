@@ -1,6 +1,6 @@
 // Model for the adding command form
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Form {
+pub struct AddingCommandForm {
     // Input for the command to run
     command_input: String,
     // Input for the working directory to run the command in
@@ -18,14 +18,14 @@ pub enum FocusedInput {
     WorkingDir,
 }
 
-impl Default for Form {
+impl Default for AddingCommandForm {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Form {
-    // Create a new Form with default values
+impl AddingCommandForm {
+    // Create a new AddingCommandForm with default values
     pub fn new() -> Self {
         Self {
             command_input: String::new(),
@@ -99,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_form_default() {
-        let form = Form::default();
+        let form = AddingCommandForm::default();
 
         assert_eq!(form.command_input(), "");
         assert_eq!(form.working_dir_input(), "");
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_form_push_char() {
-        let mut form = Form::new();
+        let mut form = AddingCommandForm::new();
 
         form.push_char('c');
 
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn test_form_pop_char() {
-        let mut form = Form::new();
+        let mut form = AddingCommandForm::new();
         form.set_command_input("abc");
 
         form.pop_char();
@@ -127,7 +127,7 @@ mod tests {
 
     #[test]
     fn test_form_toggle_focused_input() {
-        let mut form = Form::new();
+        let mut form = AddingCommandForm::new();
         form.set_focused_input(FocusedInput::Command);
 
         form.toggle_focused_input();
@@ -137,7 +137,7 @@ mod tests {
 
     #[test]
     fn test_form_clear() {
-        let mut form = Form::new();
+        let mut form = AddingCommandForm::new();
         form.set_command_input("cmd");
         form.set_working_dir_input("/path/to/dir");
         form.set_focused_input(FocusedInput::WorkingDir);
