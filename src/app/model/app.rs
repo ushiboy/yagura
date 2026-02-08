@@ -1,4 +1,4 @@
-use super::ui_state::form::AddingCommandForm;
+use super::ui_state::adding_command_form::AddingCommandForm;
 use super::{Command, UIState};
 
 // The main application state

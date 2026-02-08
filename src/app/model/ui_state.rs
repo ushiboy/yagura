@@ -19,7 +19,7 @@ impl Default for UIState {
     }
 }
 
+pub mod adding_command_form;
 mod command_list;
-pub mod form;
+pub use adding_command_form::AddingCommandForm;
 use command_list::CommandList;
-pub use form::AddingCommandForm;
