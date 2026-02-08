@@ -1,7 +1,7 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Pid(pub u32);
+pub struct ProcessId(pub u32);
 
-impl std::fmt::Display for Pid {
+impl std::fmt::Display for ProcessId {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.0)
     }
@@ -13,13 +13,13 @@ mod tests {
 
     #[test]
     fn test_pid_creation() {
-        let pid = Pid(1234);
+        let pid = ProcessId(1234);
         assert_eq!(pid.0, 1234);
     }
 
     #[test]
     fn test_pid_display() {
-        let pid = Pid(5678);
+        let pid = ProcessId(5678);
         assert_eq!(format!("{}", pid), "5678");
     }
 }

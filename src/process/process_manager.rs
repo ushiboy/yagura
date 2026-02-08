@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use tokio::sync::oneshot;
 
-use crate::process::Pid;
+use crate::process::ProcessId;
 
 use uuid::Uuid;
 
@@ -10,7 +10,7 @@ pub struct ProcessManager {
 }
 
 pub struct ProcessHandle {
-    _pid: Pid,
+    _pid: ProcessId,
     kill_tx: Option<oneshot::Sender<()>>,
 }
 

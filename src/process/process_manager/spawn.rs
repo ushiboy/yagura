@@ -4,7 +4,7 @@ use tokio::time::{Duration, timeout};
 use super::{ProcessHandle, ProcessManager};
 use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
-use crate::process::{ExitCode, Pid};
+use crate::process::{ExitCode, ProcessId};
 use nix::sys::signal::{Signal, killpg};
 use std::io::Error;
 use std::os::unix::process::ExitStatusExt;
@@ -18,7 +18,7 @@ impl ProcessManager {
         &mut self,
         command: &Command,
         event_tx: mpsc::UnboundedSender<AppEvent>,
-    ) -> Result<Pid> {
+    ) -> Result<ProcessId> {
         let command_id = command.id();
         let command_str = command.command();
 
@@ -105,7 +105,7 @@ impl ProcessManager {
             }
         });
 
-        let pid = Pid(pid);
+        let pid = ProcessId(pid);
         let handle = ProcessHandle {
             _pid: pid,
             kill_tx: Some(kill_tx),

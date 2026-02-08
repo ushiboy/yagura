@@ -1,11 +1,11 @@
 use super::{Command, CommandStatus};
-use crate::process::{ExitCode, Pid};
+use crate::process::{ExitCode, ProcessId};
 use nix::sys::signal::Signal;
 use std::time::Instant;
 
 impl Command {
     // Marks the command as running with the given PID.
-    pub fn mark_running(&mut self, pid: Pid) {
+    pub fn mark_running(&mut self, pid: ProcessId) {
         self.status = CommandStatus::Running;
         self.pid = Some(pid);
         self.start_time = Some(Instant::now());
@@ -32,10 +32,10 @@ mod tests {
     fn test_mark_running() {
         let mut command = Command::new("echo 'Hello, World!'");
 
-        command.mark_running(Pid(1234));
+        command.mark_running(ProcessId(1234));
 
         assert_eq!(command.status(), &CommandStatus::Running);
-        assert_eq!(command.pid(), Some(Pid(1234)));
+        assert_eq!(command.pid(), Some(ProcessId(1234)));
         assert!(command.start_time.is_some());
         assert!(command.end_time.is_none());
     }
@@ -43,7 +43,7 @@ mod tests {
     #[test]
     fn test_mark_exit_with_exit_code_zero() {
         let mut command = Command::new("echo 'Hello, World!'");
-        command.mark_running(Pid(1234));
+        command.mark_running(ProcessId(1234));
 
         command.mark_exit(ExitCode::Code(0));
 

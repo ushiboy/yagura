@@ -1,5 +1,5 @@
 use super::OutputBuffer;
-use crate::process::{ExitCode, Pid};
+use crate::process::{ExitCode, ProcessId};
 use std::time::{Duration, Instant};
 use uuid::Uuid;
 
@@ -17,7 +17,7 @@ pub struct Command {
     // Current status of the command
     status: CommandStatus,
     // Process ID of the running command, if applicable
-    pid: Option<Pid>,
+    pid: Option<ProcessId>,
     // Timestamps for tracking execution duration
     start_time: Option<Instant>,
     // End time of the command execution
@@ -45,7 +45,7 @@ impl Command {
         &self.status
     }
 
-    pub fn pid(&self) -> Option<Pid> {
+    pub fn pid(&self) -> Option<ProcessId> {
         self.pid
     }
 
