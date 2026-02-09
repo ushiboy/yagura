@@ -1,7 +1,7 @@
 use crossterm::event::KeyEvent;
 use uuid::Uuid;
 
-use crate::{app::OutputLine, process::ExitCode};
+use crate::{model::OutputLine, process::ExitCode};
 
 pub enum AppEvent {
     Tick,

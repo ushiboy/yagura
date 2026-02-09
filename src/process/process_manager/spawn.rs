@@ -2,8 +2,8 @@ use anyhow::{Context, Result};
 use tokio::time::{Duration, timeout};
 
 use super::{ProcessHandle, ProcessManager};
-use crate::app::{Command, OutputLine};
 use crate::event::AppEvent;
+use crate::model::{Command, OutputLine};
 use crate::process::{ExitCode, ProcessId};
 use nix::sys::signal::{Signal, killpg};
 use std::io::Error;

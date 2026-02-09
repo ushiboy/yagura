@@ -9,8 +9,8 @@ use std::{io, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
-    app::{App, Command},
     event::{AppEvent, handle_key_event},
+    model::{App, Command},
     process::ProcessManager,
     ui,
 };

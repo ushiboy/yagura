@@ -1,4 +1,4 @@
-use crate::app::App;
+use crate::model::App;
 use anyhow::Result;
 use crossterm::event::{KeyCode, KeyEvent};
 

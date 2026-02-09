@@ -22,7 +22,7 @@ impl App {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::app::AppMode;
+    use crate::model::AppMode;
 
     #[test]
     fn test_confirm_add_command() {

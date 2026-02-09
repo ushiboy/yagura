@@ -5,7 +5,7 @@ use ratatui::{
 };
 
 use crate::{
-    app::Command,
+    model::Command,
     ui::command_list::{
         display_status::display_status, format_elapsed_time::format_elapsed_time,
         format_pid::format_pid, truncate_string::truncate_string,

@@ -1,4 +1,4 @@
-use crate::app::{App, AppMode};
+use crate::model::{App, AppMode};
 use crate::process::ProcessManager;
 use anyhow::Result;
 use crossterm::event::KeyEvent;

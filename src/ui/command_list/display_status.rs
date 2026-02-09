@@ -1,4 +1,4 @@
-use crate::app::CommandStatus;
+use crate::model::CommandStatus;
 
 pub fn display_status(status: &CommandStatus) -> String {
     match status {

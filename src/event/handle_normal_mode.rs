@@ -1,4 +1,4 @@
-use crate::app::{App, CommandStatus};
+use crate::model::{App, CommandStatus};
 use crate::process::ProcessManager;
 use anyhow::Result;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};

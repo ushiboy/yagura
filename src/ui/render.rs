@@ -1,6 +1,6 @@
 use ratatui::Frame;
 
-use crate::app::AppMode;
+use crate::model::AppMode;
 use crate::ui::delete_command_dialog;
 use crate::ui::help_bar;
 
@@ -10,7 +10,7 @@ use super::output_area;
 
 use super::split_layout::split_layout;
 
-use super::super::app::App;
+use super::super::model::App;
 
 pub fn render(frame: &mut Frame, app: &App) {
     let chunks = split_layout(frame);
