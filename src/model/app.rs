@@ -23,7 +23,7 @@ impl App {
     }
 
     pub fn selected_command_index(&self) -> Option<usize> {
-        self.ui_state.command_list.selected_command_index
+        self.ui_state.selected_command_index()
     }
 
     pub fn mode(&self) -> &AppMode {
@@ -31,11 +31,11 @@ impl App {
     }
 
     pub fn form(&self) -> &AddingCommandForm {
-        &self.ui_state.adding_command_form
+        self.ui_state.adding_command_form()
     }
 
     pub fn form_mut(&mut self) -> &mut AddingCommandForm {
-        &mut self.ui_state.adding_command_form
+        self.ui_state.adding_command_form_mut()
     }
 }
 

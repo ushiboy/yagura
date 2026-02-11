@@ -22,9 +22,9 @@ impl App {
 
     // Removes the currently selected command from the application's command list.
     pub fn delete_selected_command(&mut self) {
-        if let Some(index) = self.ui_state.command_list.selected_command_index {
+        if let Some(index) = self.ui_state.selected_command_index() {
             self.commands.remove(index);
-            self.ui_state.command_list.selected_command_index = None;
+            self.ui_state.clear_selection();
         }
     }
 }
@@ -84,13 +84,13 @@ mod tests {
         let command2 = Command::new("pwd");
         app.add_command(command1);
         app.add_command(command2);
-        app.ui_state.command_list.selected_command_index = Some(0);
+        app.ui_state.set_selected_index(0);
 
         app.delete_selected_command();
 
         assert_eq!(app.commands().len(), 1);
         assert_eq!(app.commands()[0].command(), "pwd");
-        assert_eq!(app.ui_state.command_list.selected_command_index, None);
+        assert_eq!(app.ui_state.selected_command_index(), None);
     }
 
     #[test]
@@ -98,10 +98,9 @@ mod tests {
         let mut app = App::new();
         let command = Command::new("ls -la");
         app.add_command(command);
-        app.ui_state.command_list.selected_command_index = None;
 
         app.delete_selected_command();
         assert_eq!(app.commands().len(), 1);
-        assert_eq!(app.ui_state.command_list.selected_command_index, None);
+        assert_eq!(app.ui_state.selected_command_index(), None);
     }
 }
