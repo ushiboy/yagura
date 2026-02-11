@@ -25,6 +25,12 @@ pub async fn handle_normal_mode(
         KeyCode::Char('k') | KeyCode::Up => {
             app.select_previous_command(viewport_metrics.command_list_height)
         }
+        KeyCode::Char('f') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+            app.page_down_command_log(viewport_metrics.output_area_height);
+        }
+        KeyCode::Char('b') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+            app.page_up_command_log(viewport_metrics.output_area_height);
+        }
         KeyCode::Enter => {
             if let Some(command) = app.get_selected_command() {
                 match command.status() {

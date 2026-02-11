@@ -13,7 +13,9 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
 
     let content = if let Some(cmd) = command {
         let total_lines = cmd.output_buffer().line_length();
-        let scroll_offset = total_lines.saturating_sub(viewport_height);
+        let scroll_offset = app
+            .get_command_log_offset()
+            .unwrap_or_else(|| total_lines.saturating_sub(viewport_height));
 
         cmd.output_buffer()
             .slice_lines(scroll_offset, viewport_height)

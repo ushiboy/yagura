@@ -23,8 +23,10 @@ impl App {
     // Removes the currently selected command from the application's command list.
     pub fn delete_selected_command(&mut self) {
         if let Some(index) = self.ui_state.selected_command_index() {
+            let command_id = self.commands[index].id();
             self.commands.remove(index);
             self.ui_state.clear_selection();
+            self.ui_state.remove_command_log_offset(command_id);
         }
     }
 }

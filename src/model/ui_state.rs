@@ -5,6 +5,8 @@ pub struct UIState {
     command_list: CommandList,
     // The state of the adding command form UI component.
     adding_command_form: AddingCommandForm,
+    // The state of the command log UI component.
+    command_log: CommandLog,
 }
 
 impl UIState {
@@ -12,6 +14,7 @@ impl UIState {
         Self {
             command_list: CommandList::new(),
             adding_command_form: AddingCommandForm::new(),
+            command_log: CommandLog::new(),
         }
     }
 
@@ -35,6 +38,18 @@ impl UIState {
         self.command_list.set_scroll_offset(offset);
     }
 
+    pub fn get_command_log_offset(&self, command_id: Uuid) -> Option<usize> {
+        self.command_log.get_offset(&command_id)
+    }
+
+    pub fn set_command_log_offset(&mut self, command_id: Uuid, offset: usize) {
+        self.command_log.set_offset(command_id, offset);
+    }
+
+    pub fn remove_command_log_offset(&mut self, command_id: Uuid) {
+        self.command_log.remove_offset(&command_id);
+    }
+
     pub fn adding_command_form(&self) -> &AddingCommandForm {
         &self.adding_command_form
     }
@@ -52,5 +67,8 @@ impl Default for UIState {
 
 pub mod adding_command_form;
 mod command_list;
+mod command_log;
 pub use adding_command_form::AddingCommandForm;
 use command_list::CommandList;
+use command_log::CommandLog;
+use uuid::Uuid;

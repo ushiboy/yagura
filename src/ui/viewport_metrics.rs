@@ -12,7 +12,8 @@ impl From<&FrameContext> for ViewportMetrics {
         ViewportMetrics {
             // Subtracting 2 for borders
             command_list_height: frame_context.command_list_area.height.saturating_sub(2) as usize,
-            output_area_height: frame_context.output_area.height as usize,
+            // Subtracting 2 for borders
+            output_area_height: frame_context.output_area.height.saturating_sub(2) as usize,
             help_bar_height: frame_context.help_bar_area.height as usize,
         }
     }
