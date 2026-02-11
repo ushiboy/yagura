@@ -1,5 +1,6 @@
 use crate::model::{App, CommandStatus};
 use crate::process::ProcessManager;
+use crate::ui::ViewportMetrics;
 use anyhow::Result;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
 use tokio::sync::mpsc::UnboundedSender;
@@ -11,6 +12,7 @@ pub async fn handle_normal_mode(
     process_manager: &mut ProcessManager,
     key: KeyEvent,
     event_tx: UnboundedSender<AppEvent>,
+    _viewport_metrics: ViewportMetrics,
 ) -> Result<()> {
     match key.code {
         KeyCode::Char('q') => app.quit(),

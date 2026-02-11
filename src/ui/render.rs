@@ -4,22 +4,19 @@ use crate::model::AppMode;
 use crate::ui::delete_command_dialog;
 use crate::ui::help_bar;
 
+use super::FrameContext;
 use super::add_command_dialog;
 use super::command_list;
 use super::output_area;
 
-use super::split_layout::split_layout;
-
 use super::super::model::App;
 
-pub fn render(frame: &mut Frame, app: &App) {
-    let chunks = split_layout(frame);
+pub fn render(frame: &mut Frame, app: &App, frame_context: &FrameContext) {
+    command_list::render(frame, frame_context.command_list_area, app);
 
-    command_list::render(frame, chunks[0], app);
+    output_area::render(frame, frame_context.output_area, app);
 
-    output_area::render(frame, chunks[1], app);
-
-    help_bar::render(frame, chunks[2], app);
+    help_bar::render(frame, frame_context.help_bar_area, app);
 
     match app.mode() {
         AppMode::Normal => {

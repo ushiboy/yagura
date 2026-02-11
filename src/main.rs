@@ -12,7 +12,7 @@ use yagura::{
     event::{AppEvent, handle_key_event},
     model::{App, Command},
     process::ProcessManager,
-    ui,
+    ui::{self, FrameContext, ViewportMetrics},
 };
 
 #[tokio::main]
@@ -94,8 +94,12 @@ async fn main_loop(
     event_rx: &mut mpsc::UnboundedReceiver<AppEvent>,
     event_tx: mpsc::UnboundedSender<AppEvent>,
 ) -> Result<()> {
+    let mut frame_context = FrameContext::default();
     loop {
-        terminal.draw(|f| ui::render(f, app))?;
+        terminal.draw(|f| {
+            frame_context = ui::build_frame_context(f);
+            ui::render(f, app, &frame_context)
+        })?;
 
         if let Some(event) = event_rx.recv().await {
             match event {
@@ -103,7 +107,15 @@ async fn main_loop(
                     // ignore
                 }
                 AppEvent::Key(key) => {
-                    handle_key_event(app, process_manager, key, event_tx.clone()).await?
+                    let viewport_metrics = ViewportMetrics::from(&frame_context);
+                    handle_key_event(
+                        app,
+                        process_manager,
+                        key,
+                        event_tx.clone(),
+                        viewport_metrics,
+                    )
+                    .await?
                 }
                 AppEvent::ProcessOutput(command_id, output_line) => {
                     app.add_output_line(command_id, output_line);
