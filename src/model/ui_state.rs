@@ -27,6 +27,14 @@ impl UIState {
         self.command_list.clear_selection();
     }
 
+    pub fn command_list_scroll_offset(&self) -> usize {
+        self.command_list.scroll_offset()
+    }
+
+    pub fn set_command_list_scroll_offset(&mut self, offset: usize) {
+        self.command_list.set_scroll_offset(offset);
+    }
+
     pub fn adding_command_form(&self) -> &AddingCommandForm {
         &self.adding_command_form
     }

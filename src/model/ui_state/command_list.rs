@@ -3,6 +3,8 @@
 pub struct CommandList {
     // The index of the currently selected command, if any.
     selected_command_index: Option<usize>,
+    // The current scroll offset of the command list.
+    scroll_offset: usize,
 }
 
 impl CommandList {
@@ -10,6 +12,7 @@ impl CommandList {
     pub fn new() -> Self {
         Self {
             selected_command_index: None,
+            scroll_offset: 0,
         }
     }
 
@@ -24,6 +27,14 @@ impl CommandList {
     pub fn clear_selection(&mut self) {
         self.selected_command_index = None;
     }
+
+    pub fn scroll_offset(&self) -> usize {
+        self.scroll_offset
+    }
+
+    pub fn set_scroll_offset(&mut self, offset: usize) {
+        self.scroll_offset = offset;
+    }
 }
 
 #[cfg(test)]
@@ -33,6 +44,7 @@ mod tests {
     fn test_command_list_new() {
         let command_list = CommandList::new();
         assert_eq!(command_list.selected_command_index(), None);
+        assert_eq!(command_list.scroll_offset(), 0);
     }
 
     #[test]
@@ -52,5 +64,14 @@ mod tests {
         command_list.clear_selection();
 
         assert_eq!(command_list.selected_command_index(), None);
+    }
+
+    #[test]
+    fn test_set_and_get_scroll_offset() {
+        let mut command_list = CommandList::new();
+
+        command_list.set_scroll_offset(5);
+
+        assert_eq!(command_list.scroll_offset(), 5);
     }
 }

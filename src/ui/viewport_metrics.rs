@@ -10,7 +10,8 @@ pub struct ViewportMetrics {
 impl From<&FrameContext> for ViewportMetrics {
     fn from(frame_context: &FrameContext) -> Self {
         ViewportMetrics {
-            command_list_height: frame_context.command_list_area.height as usize,
+            // Subtracting 2 for borders
+            command_list_height: frame_context.command_list_area.height.saturating_sub(2) as usize,
             output_area_height: frame_context.output_area.height as usize,
             help_bar_height: frame_context.help_bar_area.height as usize,
         }

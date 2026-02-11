@@ -26,6 +26,10 @@ impl App {
         self.ui_state.selected_command_index()
     }
 
+    pub fn command_list_scroll_offset(&self) -> usize {
+        self.ui_state.command_list_scroll_offset()
+    }
+
     pub fn mode(&self) -> &AppMode {
         &self.mode
     }

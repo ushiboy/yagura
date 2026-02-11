@@ -7,10 +7,15 @@ use ratatui::{
 };
 
 pub fn render(frame: &mut Frame, area: Rect, app: &App) {
+    let inner_height = area.height as usize;
+    let offset = app.command_list_scroll_offset();
+
     let items = app
         .commands()
         .iter()
         .enumerate()
+        .skip(offset)
+        .take(inner_height)
         .map(|(i, cmd)| list_item(cmd, app.selected_command_index() == Some(i)))
         .collect::<Vec<_>>();
 

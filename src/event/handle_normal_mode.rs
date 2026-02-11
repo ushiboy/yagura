@@ -12,15 +12,19 @@ pub async fn handle_normal_mode(
     process_manager: &mut ProcessManager,
     key: KeyEvent,
     event_tx: UnboundedSender<AppEvent>,
-    _viewport_metrics: ViewportMetrics,
+    viewport_metrics: ViewportMetrics,
 ) -> Result<()> {
     match key.code {
         KeyCode::Char('q') => app.quit(),
         KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => app.quit(),
         KeyCode::Char('a') => app.change_adding_mode(),
         KeyCode::Char('d') => app.change_deleting_mode(),
-        KeyCode::Char('j') | KeyCode::Down => app.select_next_command(),
-        KeyCode::Char('k') | KeyCode::Up => app.select_previous_command(),
+        KeyCode::Char('j') | KeyCode::Down => {
+            app.select_next_command(viewport_metrics.command_list_height)
+        }
+        KeyCode::Char('k') | KeyCode::Up => {
+            app.select_previous_command(viewport_metrics.command_list_height)
+        }
         KeyCode::Enter => {
             if let Some(command) = app.get_selected_command() {
                 match command.status() {

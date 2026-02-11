@@ -19,7 +19,7 @@ impl App {
         }
     }
 
-    pub fn select_next_command(&mut self) {
+    pub fn select_next_command(&mut self, viewport_height: usize) {
         if self.commands.is_empty() {
             return;
         }
@@ -29,9 +29,10 @@ impl App {
             None => 0,
         };
         self.ui_state.set_selected_index(next_index);
+        self.adjust_scroll_offset(next_index, viewport_height);
     }
 
-    pub fn select_previous_command(&mut self) {
+    pub fn select_previous_command(&mut self, viewport_height: usize) {
         if self.commands.is_empty() {
             return;
         }
@@ -41,8 +42,20 @@ impl App {
             Some(index) => (index + len - 1) % len,
             None => 0,
         };
-
         self.ui_state.set_selected_index(previous_index);
+        self.adjust_scroll_offset(previous_index, viewport_height);
+    }
+
+    fn adjust_scroll_offset(&mut self, selected_index: usize, viewport_height: usize) {
+        let offset = self.ui_state.command_list_scroll_offset();
+        let new_offset = if selected_index < offset {
+            selected_index
+        } else if viewport_height > 0 && selected_index >= offset + viewport_height {
+            selected_index + 1 - viewport_height
+        } else {
+            offset
+        };
+        self.ui_state.set_command_list_scroll_offset(new_offset);
     }
 }
 
@@ -80,7 +93,7 @@ mod tests {
         assert!(app.commands().is_empty());
         assert!(app.ui_state.selected_command_index().is_none());
 
-        app.select_next_command();
+        app.select_next_command(10);
 
         assert!(app.ui_state.selected_command_index().is_none());
     }
@@ -93,7 +106,7 @@ mod tests {
         app.add_command(Command::new("echo test"));
         assert!(app.ui_state.selected_command_index().is_none());
 
-        app.select_next_command();
+        app.select_next_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(0));
     }
@@ -106,11 +119,11 @@ mod tests {
         app.add_command(Command::new("echo test"));
         app.ui_state.set_selected_index(0);
 
-        app.select_next_command();
+        app.select_next_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(1));
 
-        app.select_next_command();
+        app.select_next_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(2));
     }
@@ -123,7 +136,7 @@ mod tests {
         app.add_command(Command::new("echo test"));
         app.ui_state.set_selected_index(2);
 
-        app.select_next_command();
+        app.select_next_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(0));
     }
@@ -134,7 +147,7 @@ mod tests {
         assert!(app.commands().is_empty());
         assert!(app.ui_state.selected_command_index().is_none());
 
-        app.select_previous_command();
+        app.select_previous_command(10);
 
         assert!(app.ui_state.selected_command_index().is_none());
     }
@@ -147,7 +160,7 @@ mod tests {
         app.add_command(Command::new("echo test"));
         assert!(app.ui_state.selected_command_index().is_none());
 
-        app.select_previous_command();
+        app.select_previous_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(0));
     }
@@ -160,11 +173,11 @@ mod tests {
         app.add_command(Command::new("echo test"));
         app.ui_state.set_selected_index(2);
 
-        app.select_previous_command();
+        app.select_previous_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(1));
 
-        app.select_previous_command();
+        app.select_previous_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(0));
     }
@@ -177,8 +190,37 @@ mod tests {
         app.add_command(Command::new("echo test"));
         app.ui_state.set_selected_index(0);
 
-        app.select_previous_command();
+        app.select_previous_command(10);
 
         assert_eq!(app.ui_state.selected_command_index(), Some(2));
+    }
+
+    #[test]
+    fn test_scroll_offset_advances_when_selection_exceeds_viewport() {
+        let mut app = App::new();
+        for i in 0..5 {
+            app.add_command(Command::new(&format!("cmd {}", i)));
+        }
+        app.ui_state.set_selected_index(1);
+
+        // viewport_height=2: selecting index 2 should push offset to 1
+        app.select_next_command(2);
+        assert_eq!(app.ui_state.selected_command_index(), Some(2));
+        assert_eq!(app.ui_state.command_list_scroll_offset(), 1);
+    }
+
+    #[test]
+    fn test_scroll_offset_retreats_when_selection_goes_above_viewport() {
+        let mut app = App::new();
+        for i in 0..5 {
+            app.add_command(Command::new(&format!("cmd {}", i)));
+        }
+        app.ui_state.set_selected_index(2);
+        app.ui_state.set_command_list_scroll_offset(2);
+
+        // selecting index 1 (above offset 2) should move offset back to 1
+        app.select_previous_command(2);
+        assert_eq!(app.ui_state.selected_command_index(), Some(1));
+        assert_eq!(app.ui_state.command_list_scroll_offset(), 1);
     }
 }
