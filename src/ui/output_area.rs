@@ -1,4 +1,4 @@
-use crate::model::App;
+use crate::model::{App, TimestampVisibility};
 use ratatui::{
     Frame,
     layout::Rect,
@@ -20,7 +20,17 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         cmd.output_buffer()
             .slice_lines(scroll_offset, viewport_height)
             .iter()
-            .map(|line| Line::from(line.content().to_string()))
+            .map(|line| {
+                if app.command_log_timestamp_visibility() == &TimestampVisibility::Show {
+                    Line::from(format!(
+                        "[{}] {}",
+                        line.timestamp().format("%H:%M:%S"),
+                        line.content()
+                    ))
+                } else {
+                    Line::from(line.content().to_string())
+                }
+            })
             .collect()
     } else {
         vec![Line::from("No command selected.")]

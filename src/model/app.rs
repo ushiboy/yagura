@@ -1,3 +1,4 @@
+use super::ui_state::TimestampVisibility;
 use super::ui_state::adding_command_form::AddingCommandForm;
 use super::{Command, UIState};
 
@@ -28,6 +29,14 @@ impl App {
 
     pub fn command_list_scroll_offset(&self) -> usize {
         self.ui_state.command_list_scroll_offset()
+    }
+
+    pub fn toggle_command_log_timestamp_visibility(&mut self) {
+        self.ui_state.toggle_command_log_timestamp_visibility();
+    }
+
+    pub fn command_log_timestamp_visibility(&self) -> &TimestampVisibility {
+        self.ui_state.command_log_timestamp_visibility()
     }
 
     pub fn mode(&self) -> &AppMode {

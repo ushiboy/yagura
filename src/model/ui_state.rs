@@ -1,5 +1,5 @@
 // The UI state of the application
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct UIState {
     // The state of the command list UI component.
     command_list: CommandList,
@@ -57,6 +57,14 @@ impl UIState {
     pub fn adding_command_form_mut(&mut self) -> &mut AddingCommandForm {
         &mut self.adding_command_form
     }
+
+    pub fn toggle_command_log_timestamp_visibility(&mut self) {
+        self.command_log.toggle_timestamp_visibility();
+    }
+
+    pub fn command_log_timestamp_visibility(&self) -> &TimestampVisibility {
+        self.command_log.timestamp_visibility()
+    }
 }
 
 impl Default for UIState {
@@ -70,5 +78,5 @@ mod command_list;
 mod command_log;
 pub use adding_command_form::AddingCommandForm;
 use command_list::CommandList;
-use command_log::CommandLog;
+pub use command_log::{CommandLog, TimestampVisibility};
 use uuid::Uuid;

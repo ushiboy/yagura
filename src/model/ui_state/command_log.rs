@@ -2,15 +2,23 @@ use std::collections::HashMap;
 
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct CommandLog {
     offset_by_command_id: HashMap<Uuid, usize>,
+    timestamp_visibility: TimestampVisibility,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum TimestampVisibility {
+    Show,
+    Hide,
 }
 
 impl CommandLog {
     pub fn new() -> Self {
         Self {
             offset_by_command_id: HashMap::new(),
+            timestamp_visibility: TimestampVisibility::Show,
         }
     }
 
@@ -24,6 +32,17 @@ impl CommandLog {
 
     pub fn remove_offset(&mut self, command_id: &Uuid) {
         self.offset_by_command_id.remove(command_id);
+    }
+
+    pub fn toggle_timestamp_visibility(&mut self) {
+        self.timestamp_visibility = match self.timestamp_visibility {
+            TimestampVisibility::Show => TimestampVisibility::Hide,
+            TimestampVisibility::Hide => TimestampVisibility::Show,
+        };
+    }
+
+    pub fn timestamp_visibility(&self) -> &TimestampVisibility {
+        &self.timestamp_visibility
     }
 }
 
