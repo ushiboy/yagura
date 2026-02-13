@@ -1,4 +1,3 @@
-use super::ui_state::TimestampVisibility;
 use super::ui_state::adding_command_form::AddingCommandForm;
 use super::{Command, UIState};
 
@@ -35,7 +34,7 @@ impl App {
         self.ui_state.toggle_command_log_timestamp_visibility();
     }
 
-    pub fn command_log_timestamp_visibility(&self) -> &TimestampVisibility {
+    pub fn command_log_timestamp_visibility(&self) -> bool {
         self.ui_state.command_log_timestamp_visibility()
     }
 

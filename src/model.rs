@@ -8,4 +8,4 @@ pub use app::{App, AppMode};
 pub use command::{Command, CommandStatus};
 pub use output_buffer::OutputBuffer;
 pub use output_line::OutputLine;
-pub use ui_state::{TimestampVisibility, UIState};
+pub use ui_state::UIState;

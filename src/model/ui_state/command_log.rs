@@ -5,20 +5,14 @@ use uuid::Uuid;
 #[derive(Debug, PartialEq, Eq)]
 pub struct CommandLog {
     offset_by_command_id: HashMap<Uuid, usize>,
-    timestamp_visibility: TimestampVisibility,
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum TimestampVisibility {
-    Show,
-    Hide,
+    timestamp_visibility: bool,
 }
 
 impl CommandLog {
     pub fn new() -> Self {
         Self {
             offset_by_command_id: HashMap::new(),
-            timestamp_visibility: TimestampVisibility::Show,
+            timestamp_visibility: true,
         }
     }
 
@@ -35,14 +29,11 @@ impl CommandLog {
     }
 
     pub fn toggle_timestamp_visibility(&mut self) {
-        self.timestamp_visibility = match self.timestamp_visibility {
-            TimestampVisibility::Show => TimestampVisibility::Hide,
-            TimestampVisibility::Hide => TimestampVisibility::Show,
-        };
+        self.timestamp_visibility = !self.timestamp_visibility;
     }
 
-    pub fn timestamp_visibility(&self) -> &TimestampVisibility {
-        &self.timestamp_visibility
+    pub fn timestamp_visibility(&self) -> bool {
+        self.timestamp_visibility
     }
 }
 

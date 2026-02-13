@@ -62,7 +62,7 @@ impl UIState {
         self.command_log.toggle_timestamp_visibility();
     }
 
-    pub fn command_log_timestamp_visibility(&self) -> &TimestampVisibility {
+    pub fn command_log_timestamp_visibility(&self) -> bool {
         self.command_log.timestamp_visibility()
     }
 }
@@ -78,5 +78,5 @@ mod command_list;
 mod command_log;
 pub use adding_command_form::AddingCommandForm;
 use command_list::CommandList;
-pub use command_log::{CommandLog, TimestampVisibility};
+pub use command_log::CommandLog;
 use uuid::Uuid;

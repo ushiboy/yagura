@@ -1,4 +1,4 @@
-use crate::model::{App, TimestampVisibility};
+use crate::model::App;
 use ratatui::{
     Frame,
     layout::Rect,
@@ -21,7 +21,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
             .slice_lines(scroll_offset, viewport_height)
             .iter()
             .map(|line| {
-                if app.command_log_timestamp_visibility() == &TimestampVisibility::Show {
+                if app.command_log_timestamp_visibility() {
                     Line::from(format!(
                         "[{}] {}",
                         line.timestamp().format("%H:%M:%S"),
