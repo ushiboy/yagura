@@ -59,7 +59,7 @@ async fn main() -> Result<()> {
     let cancel_tick_token = cancel_token.clone();
     let tick_tx = event_tx.clone();
     tokio::spawn(async move {
-        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(100));
+        let mut interval = tokio::time::interval(tokio::time::Duration::from_millis(16));
         loop {
             if cancel_tick_token.is_cancelled() {
                 break;
@@ -96,15 +96,13 @@ async fn main_loop(
 ) -> Result<()> {
     let mut frame_context = FrameContext::default();
     loop {
-        terminal.draw(|f| {
-            frame_context = ui::build_frame_context(f);
-            ui::render(f, app, &frame_context)
-        })?;
-
         if let Some(event) = event_rx.recv().await {
             match event {
                 AppEvent::Tick => {
-                    // ignore
+                    terminal.draw(|f| {
+                        frame_context = ui::build_frame_context(f);
+                        ui::render(f, app, &frame_context)
+                    })?;
                 }
                 AppEvent::Key(key) => {
                     let viewport_metrics = ViewportMetrics::from(&frame_context);
