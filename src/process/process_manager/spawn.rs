@@ -17,7 +17,7 @@ impl ProcessManager {
     pub async fn spawn(
         &mut self,
         command: &Command,
-        event_tx: mpsc::UnboundedSender<AppEvent>,
+        event_tx: mpsc::Sender<AppEvent>,
     ) -> Result<ProcessId> {
         let command_id = command.id();
         let command_str = command.command();
@@ -60,7 +60,9 @@ impl ProcessManager {
             let reader = BufReader::new(stdout);
             let mut lines = reader.lines();
             while let Ok(Some(line)) = lines.next_line().await {
-                let _ = stdout_tx.send(AppEvent::ProcessOutput(command_id, OutputLine::new(line)));
+                let _ = stdout_tx
+                    .send(AppEvent::ProcessOutput(command_id, OutputLine::new(line)))
+                    .await;
             }
         });
 
@@ -70,7 +72,9 @@ impl ProcessManager {
             let reader = BufReader::new(stderr);
             let mut lines = reader.lines();
             while let Ok(Some(line)) = lines.next_line().await {
-                let _ = stderr_tx.send(AppEvent::ProcessOutput(command_id, OutputLine::new(line)));
+                let _ = stderr_tx
+                    .send(AppEvent::ProcessOutput(command_id, OutputLine::new(line)))
+                    .await;
             }
         });
 
@@ -101,7 +105,9 @@ impl ProcessManager {
                 } else {
                     ExitCode::Code(-1) // Unknown exit status
                 };
-                let _ = exit_tx.send(AppEvent::ProcessExited(command_id, exit_code));
+                let _ = exit_tx
+                    .send(AppEvent::ProcessExited(command_id, exit_code))
+                    .await;
             }
         });
 

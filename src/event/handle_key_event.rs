@@ -3,7 +3,7 @@ use crate::process::ProcessManager;
 use crate::ui::ViewportMetrics;
 use anyhow::Result;
 use crossterm::event::KeyEvent;
-use tokio::sync::mpsc::UnboundedSender;
+use tokio::sync::mpsc::Sender;
 
 use super::{
     AppEvent, handle_adding_command_mode::handle_adding_command_mode,
@@ -15,7 +15,7 @@ pub async fn handle_key_event(
     app: &mut App,
     process_manager: &mut ProcessManager,
     key: KeyEvent,
-    event_tx: UnboundedSender<AppEvent>,
+    event_tx: Sender<AppEvent>,
     viewport_metrics: ViewportMetrics,
 ) -> Result<()> {
     match app.mode() {

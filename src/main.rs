@@ -36,7 +36,7 @@ async fn main() -> Result<()> {
     app.add_command(Command::new("cargo build --release"));
 
     let cancel_token = CancellationToken::new();
-    let (event_tx, mut event_rx) = mpsc::unbounded_channel::<AppEvent>();
+    let (event_tx, mut event_rx) = mpsc::channel::<AppEvent>(2048);
 
     let cancel_terminal_token = cancel_token.clone();
     let terminal_event_tx = event_tx.clone();
@@ -49,7 +49,7 @@ async fn main() -> Result<()> {
             if crossterm::event::poll(Duration::from_millis(100)).is_ok()
                 && let Ok(Event::Key(key)) = crossterm::event::read()
             {
-                let _ = terminal_event_tx.send(AppEvent::Key(key));
+                let _ = terminal_event_tx.send(AppEvent::Key(key)).await;
             }
 
             tokio::task::yield_now().await;
@@ -65,7 +65,7 @@ async fn main() -> Result<()> {
                 break;
             }
             interval.tick().await;
-            let _ = tick_tx.send(AppEvent::Tick);
+            let _ = tick_tx.send(AppEvent::Tick).await;
         }
     });
 
@@ -91,8 +91,8 @@ async fn main_loop(
     terminal: &mut Terminal<CrosstermBackend<io::Stdout>>,
     app: &mut App,
     process_manager: &mut ProcessManager,
-    event_rx: &mut mpsc::UnboundedReceiver<AppEvent>,
-    event_tx: mpsc::UnboundedSender<AppEvent>,
+    event_rx: &mut mpsc::Receiver<AppEvent>,
+    event_tx: mpsc::Sender<AppEvent>,
 ) -> Result<()> {
     let mut frame_context = FrameContext::default();
     loop {
