@@ -22,12 +22,12 @@ impl ProcessManager {
         let command_id = command.id();
         let command_str = command.command();
 
-        let parts: Vec<&str> = command_str.split_whitespace().collect();
+        let parts = shlex::split(command_str).context("Failed to parse command string")?;
         if parts.is_empty() {
             anyhow::bail!("Command string is empty");
         }
 
-        let program = parts[0];
+        let program = &parts[0];
         let args = &parts[1..];
 
         let mut cmd_builder = TokioCommand::new(program);
