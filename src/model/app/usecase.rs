@@ -17,6 +17,16 @@ impl App {
         self.select_command_by_id(command_id);
         self.change_normal_mode();
     }
+
+    pub fn remove_selected_command(&mut self) {
+        if let Some(command) = self.get_selected_command() {
+            let command_id = command.id();
+            self.remove_command_by_id(command_id);
+            self.ui_state.clear_selection();
+            self.ui_state.remove_command_log_offset(command_id);
+            self.change_normal_mode();
+        }
+    }
 }
 
 #[cfg(test)]

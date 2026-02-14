@@ -15,8 +15,7 @@ pub async fn handle_deleting_command_mode(
             {
                 process_manager.stop(command.id()).await?;
             }
-            app.delete_selected_command();
-            app.change_normal_mode();
+            app.remove_selected_command();
         }
         KeyCode::Char('n') | KeyCode::Esc => app.change_normal_mode(),
         _ => { /* Ignore other keys */ }
