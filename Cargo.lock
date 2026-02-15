@@ -2525,6 +2525,7 @@ dependencies = [
  "crossterm",
  "nix 0.31.1",
  "ratatui",
+ "serde",
  "serde-saphyr",
  "shlex",
  "tokio",
