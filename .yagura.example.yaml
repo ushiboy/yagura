@@ -1,0 +1,9 @@
+workspace_root: "./"
+commands:
+  - command: "cargo fmt"
+  - command: "cargo clippy --fix --bin yagura --allow-dirty"
+  - command: "cargo test"
+  - command: "cargo build"
+  - command: "cargo build --release"
+  - command: "sh ./ping.sh"
+    working_dir: "./tmp"
