@@ -5,18 +5,31 @@ use crossterm::{
     terminal::{EnterAlternateScreen, LeaveAlternateScreen, disable_raw_mode, enable_raw_mode},
 };
 use ratatui::{Terminal, prelude::CrosstermBackend};
+use std::path::PathBuf;
 use std::{io, time::Duration};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 use yagura::{
+    config,
     event::{AppEvent, handle_key_event},
     model::{App, Command},
     process::ProcessManager,
     ui::{self, FrameContext, ViewportMetrics},
 };
 
+use clap::Parser;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+pub struct Args {
+    #[arg(short, long, default_value = ".yagura.yaml")]
+    config_path: Option<PathBuf>,
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
+    let args = Args::parse();
+
     enable_raw_mode()?;
 
     let mut stdout = io::stdout();
@@ -27,13 +40,21 @@ async fn main() -> Result<()> {
     let mut app = App::new();
     let mut process_manager = ProcessManager::new();
 
-    app.add_command(Command::new("cargo fmt"));
-    app.add_command(Command::new(
-        "cargo clippy --fix --bin yagura --allow-dirty",
-    ));
-    app.add_command(Command::new("cargo test"));
-    app.add_command(Command::new("cargo build"));
-    app.add_command(Command::new("cargo build --release"));
+    if let Some(config_path) = args.config_path
+        && config_path.exists()
+    {
+        let conf = config::load_config(config_path)?;
+
+        for cmd_conf in conf.commands {
+            if cmd_conf.working_dir.is_none() {
+                app.add_command(Command::new(cmd_conf.command));
+            } else {
+                app.add_command(
+                    Command::new(cmd_conf.command).with_working_dir(cmd_conf.working_dir),
+                );
+            }
+        }
+    }
 
     let cancel_token = CancellationToken::new();
     let (event_tx, mut event_rx) = mpsc::channel::<AppEvent>(2048);
