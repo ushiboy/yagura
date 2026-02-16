@@ -76,7 +76,7 @@ impl Default for UIState {
 pub mod adding_command_form;
 mod command_list;
 mod command_log;
-pub use adding_command_form::AddingCommandForm;
+pub use adding_command_form::{AddingCommandForm, FocusedInput};
 use command_list::CommandList;
 pub use command_log::CommandLog;
 use uuid::Uuid;

@@ -1,8 +1,8 @@
-use crate::model::App;
+use crate::model::{App, FocusedInput};
 use ratatui::{
     Frame,
     layout::{Alignment, Constraint, Direction, Layout},
-    style::{Color, Style},
+    style::{Color, Modifier, Style},
     text::{Line, Span},
     widgets::{Block, Borders, Clear, Paragraph},
 };
@@ -49,14 +49,32 @@ pub fn render(frame: &mut Frame, app: &App) {
         ])
         .split(inner);
 
+    let command_focused = app.form().focused_input() == &FocusedInput::Command;
+    let command_prefix = if command_focused { "> " } else { "  " };
     let command_label = Paragraph::new("Enter command:").style(Style::default().fg(Color::White));
-    let command_input =
-        Paragraph::new(app.form().command_input()).style(Style::default().fg(Color::Gray));
+    let command_text = format!("{}{}_", command_prefix, app.form().command_input());
+    let command_style = if command_focused {
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(Color::Gray)
+    };
+    let command_input = Paragraph::new(command_text).style(command_style);
 
+    let working_dir_focused = app.form().focused_input() == &FocusedInput::WorkingDir;
+    let working_dir_prefix = if working_dir_focused { "> " } else { "  " };
     let working_dir_label =
         Paragraph::new("Working directory (optional):").style(Style::default().fg(Color::White));
-    let working_dir_input =
-        Paragraph::new(app.form().working_dir_input()).style(Style::default().fg(Color::Gray));
+    let working_dir_text = format!("{}{}_", working_dir_prefix, app.form().working_dir_input());
+    let working_dir_style = if working_dir_focused {
+        Style::default()
+            .fg(Color::Yellow)
+            .add_modifier(Modifier::BOLD)
+    } else {
+        Style::default().fg(Color::Gray)
+    };
+    let working_dir_input = Paragraph::new(working_dir_text).style(working_dir_style);
 
     let help_text = vec![
         Line::from(""),
