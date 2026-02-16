@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-pub fn list_item(cmd: &Command, is_selected: bool) -> ListItem<'_> {
+pub fn list_item(cmd: &Command, is_selected: bool, max_len: usize) -> ListItem<'_> {
     let marker = if is_selected { "[*]" } else { "[ ]" };
     let status = display_status(cmd.status());
     let pid = format_pid(cmd.pid());
@@ -20,7 +20,7 @@ pub fn list_item(cmd: &Command, is_selected: bool) -> ListItem<'_> {
     let content = format!(
         "{} {:<30} {} PID:{} {}",
         marker,
-        truncate_string(cmd.command(), 30),
+        truncate_string(cmd.command(), max_len),
         status,
         pid,
         time

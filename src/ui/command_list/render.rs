@@ -9,6 +9,12 @@ use ratatui::{
 pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let inner_height = area.height as usize;
     let offset = app.command_list_scroll_offset();
+    let inner_width = area.width as usize;
+    let max_len = if inner_width > 50 {
+        inner_width - 50
+    } else {
+        30
+    };
 
     let items = app
         .commands()
@@ -16,7 +22,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         .enumerate()
         .skip(offset)
         .take(inner_height)
-        .map(|(i, cmd)| list_item(cmd, app.selected_command_index() == Some(i)))
+        .map(|(i, cmd)| list_item(cmd, app.selected_command_index() == Some(i), max_len))
         .collect::<Vec<_>>();
 
     let list = List::new(items).block(Block::default().title(" Command ").borders(Borders::ALL));
