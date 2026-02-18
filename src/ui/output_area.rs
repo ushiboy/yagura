@@ -1,8 +1,9 @@
 use crate::model::App;
+use ansi_to_tui::IntoText;
 use ratatui::{
     Frame,
     layout::Rect,
-    text::Line,
+    text::{Line, Text},
     widgets::{Block, Borders, Paragraph, Wrap},
 };
 
@@ -20,16 +21,21 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         cmd.output_buffer()
             .slice_lines(scroll_offset, viewport_height)
             .iter()
-            .map(|line| {
-                if app.command_log_timestamp_visibility() {
-                    Line::from(format!(
+            .flat_map(|line| {
+                let content = if app.command_log_timestamp_visibility() {
+                    format!(
                         "[{}] {}",
                         line.timestamp().format("%H:%M:%S"),
                         line.content()
-                    ))
+                    )
                 } else {
-                    Line::from(line.content().to_string())
-                }
+                    line.content().to_string()
+                };
+
+                content
+                    .into_text()
+                    .unwrap_or_else(|_| Text::from(content))
+                    .lines
             })
             .collect()
     } else {
