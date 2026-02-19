@@ -1,5 +1,5 @@
 use crate::model::{App, CommandStatus};
-use crate::process::ProcessManager;
+use crate::process::{ExitCode, ProcessManager};
 use crate::ui::ViewportMetrics;
 use anyhow::Result;
 use crossterm::event::{KeyCode, KeyEvent, KeyModifiers};
@@ -43,7 +43,10 @@ pub async fn handle_normal_mode(
                             Ok(pid) => {
                                 app.mark_command_run(command.id(), pid);
                             }
-                            Err(_e) => {}
+                            Err(_e) => {
+                                // In case of an error, we can mark the command as having exited with an error code.
+                                app.mark_command_exit(command.id(), ExitCode::Code(-1));
+                            }
                         }
                     }
                 }
