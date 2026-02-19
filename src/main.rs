@@ -26,14 +26,31 @@ pub struct Args {
     config_path: Option<PathBuf>,
 }
 
+struct TerminalGuard;
+
+impl TerminalGuard {
+    fn new() -> Result<Self> {
+        enable_raw_mode()?;
+
+        execute!(io::stdout(), EnterAlternateScreen)?;
+        Ok(Self)
+    }
+}
+
+impl Drop for TerminalGuard {
+    fn drop(&mut self) {
+        let _ = disable_raw_mode();
+        let _ = execute!(io::stdout(), LeaveAlternateScreen);
+    }
+}
+
 #[tokio::main]
 async fn main() -> Result<()> {
     let args = Args::parse();
 
-    enable_raw_mode()?;
+    let _terminal_guard = TerminalGuard::new()?;
 
-    let mut stdout = io::stdout();
-    execute!(stdout, EnterAlternateScreen)?;
+    let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
 
@@ -101,8 +118,6 @@ async fn main() -> Result<()> {
 
     cancel_token.cancel();
     process_manager.shutdown_all().await?;
-    disable_raw_mode()?;
-    execute!(terminal.backend_mut(), LeaveAlternateScreen)?;
     terminal.show_cursor()?;
 
     Ok(())
