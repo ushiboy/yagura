@@ -101,7 +101,9 @@ impl ProcessManager {
                 let exit_code = if let Some(code) = status.code() {
                     ExitCode::Code(code)
                 } else if let Some(signal) = status.signal() {
-                    ExitCode::Signal(Signal::try_from(signal).unwrap())
+                    Signal::try_from(signal)
+                        .map(ExitCode::Signal)
+                        .unwrap_or(ExitCode::Code(-1)) // Unknown signal
                 } else {
                     ExitCode::Code(-1) // Unknown exit status
                 };
