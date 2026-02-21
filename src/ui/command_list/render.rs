@@ -15,6 +15,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     } else {
         30
     };
+    let selected_id = app.get_selected_command().map(|cmd| cmd.id());
 
     let items = app
         .commands()
@@ -22,7 +23,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         .enumerate()
         .skip(offset)
         .take(inner_height)
-        .map(|(i, cmd)| list_item(cmd, app.selected_command_index() == Some(i), max_len))
+        .map(|(_i, cmd)| list_item(cmd, selected_id == Some(cmd.id()), max_len))
         .collect::<Vec<_>>();
 
     let list = List::new(items).block(Block::default().title(" Command ").borders(Borders::ALL));
