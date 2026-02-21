@@ -4,7 +4,7 @@ use serde::Deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {
-    pub wordkspace_root: Option<String>,
+    pub workspace_root: Option<String>,
     pub commands: Vec<CommandConfig>,
 }
 
