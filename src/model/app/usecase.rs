@@ -46,7 +46,7 @@ mod tests {
 
         assert_eq!(app.commands().len(), 1);
         assert_eq!(app.commands()[0].command(), "ls");
-        assert_eq!(app.commands()[0].working_dir().as_deref(), Some("./tmp"));
+        assert_eq!(app.commands()[0].working_dir(), Some("./tmp"));
         assert_eq!(app.selected_command_index(), Some(0));
         assert_eq!(app.mode(), &AppMode::Normal);
     }

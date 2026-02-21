@@ -199,7 +199,7 @@ mod tests {
     fn test_scroll_offset_advances_when_selection_exceeds_viewport() {
         let mut app = App::new();
         for i in 0..5 {
-            app.add_command(Command::new(&format!("cmd {}", i)));
+            app.add_command(Command::new(format!("cmd {}", i)));
         }
         app.ui_state.set_selected_index(1);
 
@@ -213,7 +213,7 @@ mod tests {
     fn test_scroll_offset_retreats_when_selection_goes_above_viewport() {
         let mut app = App::new();
         for i in 0..5 {
-            app.add_command(Command::new(&format!("cmd {}", i)));
+            app.add_command(Command::new(format!("cmd {}", i)));
         }
         app.ui_state.set_selected_index(2);
         app.ui_state.set_command_list_scroll_offset(2);

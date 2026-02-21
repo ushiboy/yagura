@@ -12,9 +12,9 @@ mod tests {
     #[test]
     fn test_app_quit() {
         let mut app = App::new();
-        assert_eq!(app.should_quit(), false);
+        assert!(!app.should_quit());
 
         app.quit();
-        assert_eq!(app.should_quit(), true);
+        assert!(app.should_quit());
     }
 }
