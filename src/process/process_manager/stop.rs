@@ -10,7 +10,8 @@ impl ProcessManager {
             }
             Ok(())
         } else {
-            anyhow::bail!("No process found with the given command ID");
+            // ignore
+            Ok(())
         }
     }
 }
