@@ -15,7 +15,7 @@ pub struct ProcessHandle {
 }
 
 mod init;
-mod on_process_existed;
+mod on_process_exited;
 mod shutdown_all;
 mod spawn;
 mod stop;
