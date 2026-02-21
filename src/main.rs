@@ -80,17 +80,17 @@ async fn main() -> Result<()> {
     let terminal_event_tx = event_tx.clone();
     tokio::spawn(async move {
         loop {
-            if cancel_terminal_token.is_cancelled() {
-                break;
+            tokio::select! {
+                _ = cancel_terminal_token.cancelled() => {
+                    break;
+                }
+                _ = tokio::time::sleep(Duration::from_millis(100)) => {
+                    if crossterm::event::poll(Duration::from_millis(0)).unwrap_or(false)
+                        && let Ok(Event::Key(event)) = crossterm::event::read() {
+                            let _ = terminal_event_tx.send(AppEvent::Key(event)).await;
+                        }
+                }
             }
-
-            if crossterm::event::poll(Duration::from_millis(100)).is_ok()
-                && let Ok(Event::Key(key)) = crossterm::event::read()
-            {
-                let _ = terminal_event_tx.send(AppEvent::Key(key)).await;
-            }
-
-            tokio::task::yield_now().await;
         }
     });
 
