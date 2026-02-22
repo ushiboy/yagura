@@ -11,7 +11,7 @@ yagura keeps them organized in one place.
 ## Requirements
 
 - **OS**: Linux / macOS (Unix-like systems)
-- **Rust**: 1.85.0 or later (uses Rust 2024 edition)
+- **Rust**: 1.92.0 or later (uses Rust 2024 edition)
 
 ## Installation
 
@@ -69,10 +69,10 @@ Configuration fields:
 - `Enter` — Run/stop selected command
 - `a` — Enter add command mode
 - `d` — Enter delete command mode
-- `Ctrl+F` — Scroll output area down one page
-- `Ctrl+B` — Scroll output area up one page
+- `Ctrl + f` — Scroll output area down one page
+- `Ctrl + b` — Scroll output area up one page
 - `t` — Toggle timestamp display
-- `q` / `Ctrl+C` — Quit
+- `q` — Quit
 
 #### Add Command Mode
 
