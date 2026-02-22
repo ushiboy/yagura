@@ -10,6 +10,7 @@ pub fn split_layout(frame: &mut Frame) -> Rc<[Rect]> {
         .direction(Direction::Vertical)
         .constraints([
             Constraint::Percentage(20),
+            Constraint::Length(1),
             Constraint::Fill(1),
             Constraint::Length(1),
         ])
@@ -30,11 +31,12 @@ mod tests {
             .draw(|f| {
                 let chunks = split_layout(f);
 
-                assert_eq!(chunks.len(), 3);
+                assert_eq!(chunks.len(), 4);
                 assert!(chunks[0].height <= 6);
-                assert!(chunks[1].height >= 18);
-                assert!(chunks[1].height <= 23);
-                assert!(chunks[2].height == 1);
+                assert!(chunks[1].height == 1);
+                assert!(chunks[2].height >= 17);
+                assert!(chunks[2].height <= 22);
+                assert!(chunks[3].height == 1);
             })
             .expect("Failed to test layout");
     }

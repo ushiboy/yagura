@@ -1,9 +1,10 @@
 mod add_command_dialog;
 mod command_list;
+mod command_list_area_help_bar;
 mod delete_command_dialog;
 mod frame_context;
-mod help_bar;
 mod output_area;
+mod output_area_help_bar;
 mod render;
 mod split_layout;
 mod viewport_metrics;
