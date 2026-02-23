@@ -102,9 +102,9 @@ pub enum AppMode {
     DeletingCommand,
 }
 
+mod command_actions;
 mod command_ops;
 mod init;
 mod mode;
 mod quit;
 mod select;
-mod usecase;
