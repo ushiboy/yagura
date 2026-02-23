@@ -104,7 +104,7 @@ pub enum AppMode {
 
 mod command_actions;
 mod command_ops;
+mod command_selection;
 mod init;
 mod mode;
 mod quit;
-mod select;
