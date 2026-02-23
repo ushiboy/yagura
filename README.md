@@ -71,6 +71,8 @@ Configuration fields:
 - `d` — Enter delete command mode
 - `Ctrl + f` — Scroll output area down one page
 - `Ctrl + b` — Scroll output area up one page
+- `Ctrl + j` — Scroll output area down one line
+- `Ctrl + k` — Scroll output area up one line
 - `t` — Toggle timestamp display
 - `q` — Quit
 
