@@ -1,5 +1,6 @@
 use uuid::Uuid;
 
+use super::super::OutputLine;
 use super::{App, Command};
 use crate::process::{ExitCode, ProcessId};
 
@@ -30,6 +31,13 @@ impl App {
     pub fn mark_command_exit(&mut self, command_id: Uuid, exit_code: ExitCode) {
         if let Some(command) = self.get_command_mut_by_id(command_id) {
             command.mark_exit(exit_code);
+        }
+    }
+
+    // Adds an output line to a specific command's output log.
+    pub fn add_output_line(&mut self, command_id: Uuid, line: OutputLine) {
+        if let Some(command) = self.get_command_mut_by_id(command_id) {
+            command.add_output_line(line);
         }
     }
 }
@@ -117,5 +125,20 @@ mod tests {
 
         let cmd_mut = app.get_command_mut_by_id(command_id).unwrap();
         assert_eq!(cmd_mut.status(), &CommandStatus::Stopped);
+    }
+
+    #[test]
+    fn test_add_output_line() {
+        let mut app = App::new();
+        let command = Command::new("ls -la");
+        let command_id = command.id();
+        app.add_command(command);
+
+        let line = OutputLine::new("Line 1");
+        app.add_output_line(command_id, line);
+
+        let cmd_mut = app.get_command_mut_by_id(command_id).unwrap();
+        assert_eq!(cmd_mut.output_buffer().lines().len(), 1);
+        assert_eq!(cmd_mut.output_buffer().lines()[0].content(), "Line 1");
     }
 }

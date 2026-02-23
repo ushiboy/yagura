@@ -102,7 +102,6 @@ pub enum AppMode {
     DeletingCommand,
 }
 
-mod add_output_line;
 mod command_ops;
 mod init;
 mod mode;
