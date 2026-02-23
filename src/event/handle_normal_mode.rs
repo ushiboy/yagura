@@ -19,6 +19,12 @@ pub async fn handle_normal_mode(
         KeyCode::Char('c') if key.modifiers.contains(KeyModifiers::CONTROL) => app.quit(),
         KeyCode::Char('a') => app.change_adding_mode(),
         KeyCode::Char('d') => app.change_deleting_mode(),
+        KeyCode::Char('j') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+            app.line_down_command_log(viewport_metrics.output_area_height);
+        }
+        KeyCode::Char('k') if key.modifiers.contains(KeyModifiers::CONTROL) => {
+            app.line_up_command_log(viewport_metrics.output_area_height);
+        }
         KeyCode::Char('j') | KeyCode::Down => {
             app.select_next_command(viewport_metrics.command_list_height)
         }
