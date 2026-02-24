@@ -136,7 +136,7 @@ async fn main_loop(
             match event {
                 AppEvent::Tick => {
                     terminal.draw(|f| {
-                        frame_context = ui::build_frame_context(f);
+                        frame_context = ui::build_frame_context(f, app);
                         ui::render(f, app, &frame_context)
                     })?;
                 }

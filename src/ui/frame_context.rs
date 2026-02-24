@@ -1,6 +1,6 @@
 use ratatui::{Frame, layout::Rect};
 
-use crate::ui::split_layout::split_layout;
+use crate::{model::App, ui::split_layout::split_layout};
 
 #[derive(Debug, Clone, Default)]
 pub struct FrameContext {
@@ -10,8 +10,8 @@ pub struct FrameContext {
     pub help_bar_area: Rect,
 }
 
-pub fn build_frame_context(frame: &mut Frame) -> FrameContext {
-    let layout = split_layout(frame);
+pub fn build_frame_context(frame: &mut Frame, app: &App) -> FrameContext {
+    let layout = split_layout(frame, app);
 
     FrameContext {
         command_list_area: layout[0],

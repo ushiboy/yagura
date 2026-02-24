@@ -1,6 +1,8 @@
 // The UI state of the application
 #[derive(Debug, PartialEq, Eq)]
 pub struct UIState {
+    // Whether the help section is visible or not.
+    help_visible: bool,
     // The state of the command list UI component.
     command_list: CommandList,
     // The state of the adding command form UI component.
@@ -12,10 +14,19 @@ pub struct UIState {
 impl UIState {
     pub fn new() -> Self {
         Self {
+            help_visible: true,
             command_list: CommandList::new(),
             adding_command_form: AddingCommandForm::new(),
             command_log: CommandLog::new(),
         }
+    }
+
+    pub fn toggle_help(&mut self) {
+        self.help_visible = !self.help_visible;
+    }
+
+    pub fn help_visible(&self) -> bool {
+        self.help_visible
     }
 
     pub fn selected_command_index(&self) -> Option<usize> {

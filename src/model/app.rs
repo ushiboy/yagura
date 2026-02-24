@@ -49,6 +49,14 @@ impl App {
     pub fn form_mut(&mut self) -> &mut AddingCommandForm {
         self.ui_state.adding_command_form_mut()
     }
+
+    pub fn toggle_help(&mut self) {
+        self.ui_state.toggle_help();
+    }
+
+    pub fn help_visible(&self) -> bool {
+        self.ui_state.help_visible()
+    }
 }
 
 // Different modes the application can be in
