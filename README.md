@@ -74,6 +74,7 @@ Configuration fields:
 - `Ctrl + j` — Scroll output area down one line
 - `Ctrl + k` — Scroll output area up one line
 - `t` — Toggle timestamp display
+- `h` — Toggle help display
 - `q` — Quit
 
 #### Add Command Mode
