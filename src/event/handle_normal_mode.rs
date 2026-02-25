@@ -39,6 +39,9 @@ pub async fn handle_normal_mode(
             app.page_up_command_log(viewport_metrics.output_area_height);
         }
         KeyCode::Char('t') => app.toggle_command_log_timestamp_visibility(),
+        KeyCode::Char('y') => {
+            app.yank_visible_command_output(viewport_metrics.output_area_height);
+        }
         KeyCode::Enter => {
             if let Some(command) = app.get_selected_command() {
                 match command.status() {

@@ -1,8 +1,10 @@
 use super::ui_state::adding_command_form::AddingCommandForm;
 use super::{Command, UIState};
+use arboard::Clipboard;
 
 // The main application state
 pub struct App {
+    clipboard: Option<Clipboard>,
     // List of commands managed by the application
     commands: Vec<Command>,
     // Flag indicating whether the application should quit

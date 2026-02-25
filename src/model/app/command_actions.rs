@@ -27,6 +27,16 @@ impl App {
             self.change_normal_mode();
         }
     }
+
+    pub fn yank_visible_command_output(&mut self, viewport_height: usize) {
+        if let Some(output) = self.visible_output_as_plain_text(viewport_height)
+            && let Some(clipboard) = &mut self.clipboard
+        {
+            clipboard
+                .set_text(output)
+                .expect("Failed to set clipboard text");
+        };
+    }
 }
 
 #[cfg(test)]

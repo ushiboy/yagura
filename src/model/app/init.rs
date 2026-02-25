@@ -1,4 +1,5 @@
 use super::{App, AppMode, UIState};
+use arboard::Clipboard;
 
 impl Default for App {
     fn default() -> Self {
@@ -9,6 +10,7 @@ impl Default for App {
 impl App {
     pub fn new() -> Self {
         Self {
+            clipboard: Clipboard::new().ok(),
             commands: vec![],
             should_quit: false,
             mode: AppMode::Normal,

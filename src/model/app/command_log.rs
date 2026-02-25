@@ -8,6 +8,25 @@ impl App {
         self.ui_state.get_command_log_offset(command.id())
     }
 
+    pub fn visible_output_as_plain_text(&self, viewport_height: usize) -> Option<String> {
+        let cmd = self.get_selected_command()?;
+        let total_lines = cmd.output_buffer().line_length();
+        let scroll_offset = self
+            .get_command_log_offset()
+            .unwrap_or_else(|| total_lines.saturating_sub(viewport_height));
+        let lines = cmd
+            .output_buffer()
+            .slice_lines(scroll_offset, viewport_height);
+
+        Some(
+            lines
+                .iter()
+                .map(|line| line.content())
+                .collect::<Vec<_>>()
+                .join("\n"),
+        )
+    }
+
     // Scrolls the command log down by one line, ensuring it doesn't exceed the maximum offset.
     pub fn line_down_command_log(&mut self, viewport_height: usize) {
         self.scroll_down(viewport_height, 1);
