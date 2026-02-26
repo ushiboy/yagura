@@ -19,13 +19,23 @@ impl App {
             .output_buffer()
             .slice_lines(scroll_offset, viewport_height);
 
-        Some(
-            lines
-                .iter()
-                .map(|line| line.plain_text())
-                .collect::<Vec<_>>()
-                .join("\n"),
-        )
+        let formated = lines
+            .iter()
+            .map(|line| {
+                if self.command_log_timestamp_visibility() {
+                    format!(
+                        "[{}] {}",
+                        line.timestamp().format("%H:%M:%S"),
+                        line.plain_text()
+                    )
+                } else {
+                    line.plain_text()
+                }
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        Some(formated)
     }
 
     // Scrolls the command log down by one line, ensuring it doesn't exceed the maximum offset.
