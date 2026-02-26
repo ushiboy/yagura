@@ -27,6 +27,11 @@ impl OutputLine {
     pub fn content(&self) -> &str {
         &self.content
     }
+
+    // Returns the content of the output line with ANSI escape codes stripped.
+    pub fn plain_text(&self) -> String {
+        String::from_utf8_lossy(&strip_ansi_escapes::strip(self.content())).into_owned()
+    }
 }
 
 #[cfg(test)]
@@ -40,5 +45,13 @@ mod tests {
 
         assert_eq!(output_line.content(), content);
         assert!(output_line.timestamp() <= &Local::now());
+    }
+
+    #[test]
+    fn test_output_line_plain_text() {
+        let content = "Test \x1b[31moutput\x1b[0m line";
+        let output_line = OutputLine::new(content);
+
+        assert_eq!(output_line.plain_text(), "Test output line");
     }
 }

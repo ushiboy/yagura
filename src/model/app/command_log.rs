@@ -8,6 +8,7 @@ impl App {
         self.ui_state.get_command_log_offset(command.id())
     }
 
+    // Returns the visible output lines for the selected command as plain text, taking into account the current log offset and viewport height.
     pub fn visible_output_as_plain_text(&self, viewport_height: usize) -> Option<String> {
         let cmd = self.get_selected_command()?;
         let total_lines = cmd.output_buffer().line_length();
@@ -21,7 +22,7 @@ impl App {
         Some(
             lines
                 .iter()
-                .map(|line| line.content())
+                .map(|line| line.plain_text())
                 .collect::<Vec<_>>()
                 .join("\n"),
         )
