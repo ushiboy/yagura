@@ -27,10 +27,12 @@ pub async fn handle_normal_mode(
             app.line_up_command_log(viewport_metrics.output_area_height);
         }
         KeyCode::Char('j') | KeyCode::Down => {
-            app.select_next_command(viewport_metrics.command_list_height)
+            app.select_next_command();
+            app.ensure_selection_visible(viewport_metrics.command_list_height);
         }
         KeyCode::Char('k') | KeyCode::Up => {
-            app.select_previous_command(viewport_metrics.command_list_height)
+            app.select_previous_command();
+            app.ensure_selection_visible(viewport_metrics.command_list_height);
         }
         KeyCode::Char('f') if key.modifiers.contains(KeyModifiers::CONTROL) => {
             app.page_down_command_log(viewport_metrics.output_area_height);
