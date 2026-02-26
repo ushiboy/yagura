@@ -74,6 +74,7 @@ Configuration fields:
 - `Ctrl + j` — Scroll output area down one line
 - `Ctrl + k` — Scroll output area up one line
 - `t` — Toggle timestamp display
+- `y` — Copy the contents displayed in the output area to the clipboard
 - `h` — Toggle help display
 - `q` — Quit
 
