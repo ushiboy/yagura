@@ -18,11 +18,24 @@ impl App {
         self.change_normal_mode();
     }
 
+    // Remove the currently selected command and update selection and mode accordingly
     pub fn remove_selected_command(&mut self) {
         if let Some(command) = self.get_selected_command() {
+            let current_selected_index = self.ui_state.selected_command_index().unwrap();
             let command_id = command.id();
             self.remove_command_by_id(command_id);
-            self.ui_state.clear_selection();
+
+            let new_index = if !self.commands().is_empty() {
+                Some(current_selected_index.min(self.commands().len() - 1))
+            } else {
+                None
+            };
+
+            match new_index {
+                Some(idx) => self.ui_state.set_selected_index(idx),
+                None => self.ui_state.clear_selection(),
+            }
+
             self.ui_state.remove_command_log_offset(command_id);
             self.change_normal_mode();
         }
@@ -89,5 +102,81 @@ mod tests {
         assert_eq!(app.commands().len(), 3);
         assert_eq!(app.commands()[2].command(), "third");
         assert_eq!(app.selected_command_index(), Some(2));
+    }
+
+    #[test]
+    fn test_remove_selected_command_from_middle() {
+        let mut app = App::new();
+        app.add_command(Command::new("first"));
+        app.add_command(Command::new("second"));
+        app.add_command(Command::new("third"));
+        app.ui_state.set_selected_index(1);
+
+        app.remove_selected_command();
+
+        assert_eq!(app.commands().len(), 2);
+        assert_eq!(app.commands()[0].command(), "first");
+        assert_eq!(app.commands()[1].command(), "third");
+        assert_eq!(app.selected_command_index(), Some(1));
+        assert_eq!(app.mode(), &AppMode::Normal);
+    }
+
+    #[test]
+    fn test_remove_selected_command_when_last_item() {
+        let mut app = App::new();
+        app.add_command(Command::new("first"));
+        app.add_command(Command::new("second"));
+        app.add_command(Command::new("third"));
+        app.ui_state.set_selected_index(2);
+
+        app.remove_selected_command();
+
+        assert_eq!(app.commands().len(), 2);
+        assert_eq!(app.commands()[0].command(), "first");
+        assert_eq!(app.commands()[1].command(), "second");
+        assert_eq!(app.selected_command_index(), Some(1));
+        assert_eq!(app.mode(), &AppMode::Normal);
+    }
+
+    #[test]
+    fn test_remove_selected_command_when_only_one() {
+        let mut app = App::new();
+        app.add_command(Command::new("only"));
+        app.ui_state.set_selected_index(0);
+
+        app.remove_selected_command();
+
+        assert_eq!(app.commands().len(), 0);
+        assert_eq!(app.selected_command_index(), None);
+        assert_eq!(app.mode(), &AppMode::Normal);
+    }
+
+    #[test]
+    fn test_remove_selected_command_when_first_item() {
+        let mut app = App::new();
+        app.add_command(Command::new("first"));
+        app.add_command(Command::new("second"));
+        app.add_command(Command::new("third"));
+        app.ui_state.set_selected_index(0);
+
+        app.remove_selected_command();
+
+        assert_eq!(app.commands().len(), 2);
+        assert_eq!(app.commands()[0].command(), "second");
+        assert_eq!(app.commands()[1].command(), "third");
+        assert_eq!(app.selected_command_index(), Some(0));
+        assert_eq!(app.mode(), &AppMode::Normal);
+    }
+
+    #[test]
+    fn test_remove_selected_command_when_no_selection() {
+        let mut app = App::new();
+        app.add_command(Command::new("first"));
+        app.add_command(Command::new("second"));
+
+        app.remove_selected_command();
+
+        // Nothing should happen if no command is selected
+        assert_eq!(app.commands().len(), 2);
     }
 }
