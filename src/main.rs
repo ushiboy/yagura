@@ -73,6 +73,7 @@ async fn main() -> Result<()> {
                 app.add_command(Command::new(cmd_conf.command));
             }
         }
+        app.select_next_command();
     }
 
     let cancel_token = CancellationToken::new();
