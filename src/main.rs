@@ -61,14 +61,16 @@ async fn main() -> Result<()> {
         && config_path.exists()
     {
         let conf = config::load_config(config_path)?;
+        let workspace_root = conf.workspace_root.as_deref().unwrap_or(".");
 
         for cmd_conf in conf.commands {
-            if cmd_conf.working_dir.is_none() {
-                app.add_command(Command::new(cmd_conf.command));
-            } else {
+            if let Some(dir) = cmd_conf.working_dir {
+                let working_dir = PathBuf::from(&workspace_root).join(&dir);
                 app.add_command(
-                    Command::new(cmd_conf.command).with_working_dir(cmd_conf.working_dir),
+                    Command::new(cmd_conf.command).with_working_dir(working_dir.to_str()),
                 );
+            } else {
+                app.add_command(Command::new(cmd_conf.command));
             }
         }
     }
