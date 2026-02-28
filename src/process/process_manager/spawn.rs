@@ -87,7 +87,7 @@ impl ProcessManager {
                 _ = kill_rx => {
                     let _ = killpg(gpid, Signal::SIGINT);
 
-                    match timeout(Duration::from_secs(5), child.wait()).await {
+                    match timeout(Duration::from_secs(10), child.wait()).await {
                         Ok(status) => status,
                         Err(_) => {
                             let _ = killpg(gpid, Signal::SIGKILL);
@@ -99,7 +99,14 @@ impl ProcessManager {
 
             if let Ok(status) = status {
                 let exit_code = if let Some(code) = status.code() {
-                    ExitCode::Code(code)
+                    if code >= 128 {
+                        let sig = code - 128;
+                        Signal::try_from(sig)
+                            .map(ExitCode::Signal)
+                            .unwrap_or(ExitCode::Code(code))
+                    } else {
+                        ExitCode::Code(code)
+                    }
                 } else if let Some(signal) = status.signal() {
                     Signal::try_from(signal)
                         .map(ExitCode::Signal)
