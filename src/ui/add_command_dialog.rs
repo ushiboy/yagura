@@ -76,10 +76,16 @@ pub fn render(frame: &mut Frame, app: &App) {
     };
     let working_dir_input = Paragraph::new(working_dir_text).style(working_dir_style);
 
+    let help_keys = if app.form().is_valid() {
+        "Tab: switch fields | Enter: add | Esc: cancel"
+    } else {
+        "Tab: switch fields | Esc: cancel"
+    };
+
     let help_text = vec![
         Line::from(""),
         Line::from(Span::styled(
-            "Tab: switch fields | Enter: add | Esc: cancel",
+            help_keys,
             Style::default().fg(Color::DarkGray),
         )),
     ];

@@ -77,6 +77,10 @@ impl AddingCommandForm {
         self.focused_input = FocusedInput::Command;
     }
 
+    pub fn is_valid(&self) -> bool {
+        !self.command_input.trim().is_empty()
+    }
+
     #[cfg(test)]
     pub fn set_command_input(&mut self, input: impl Into<String>) {
         self.command_input = input.into();

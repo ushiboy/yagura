@@ -4,6 +4,11 @@ impl App {
     // Confirm adding a new command from the form inputs
     pub fn confirm_add_command(&mut self) {
         let form = self.form();
+
+        if !form.is_valid() {
+            return;
+        }
+
         let command_text = form.command_input().to_string();
         let working_dir = if form.working_dir_input().is_empty() {
             None
