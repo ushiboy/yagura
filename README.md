@@ -8,6 +8,8 @@ yagura keeps them organized in one place.
 > “yagura” (櫓) means a watchtower —
 > a place to look over what is running.
 
+![yagura image](./yagura-image.png)
+
 ## Requirements
 
 - **OS**: Linux / macOS (Unix-like systems)
