@@ -1,5 +1,6 @@
-use crate::model::App;
+use crate::model::{App, OutputLine};
 use ansi_to_tui::IntoText;
+use chrono::{DateTime, Local};
 use ratatui::{
     Frame,
     layout::Rect,
@@ -11,6 +12,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let command = app.get_selected_command();
 
     let viewport_height = area.height.saturating_sub(2) as usize;
+    let viewport_width = area.width.saturating_sub(2) as usize; // Account for borders
 
     let content = if let Some(cmd) = command {
         let total_lines = cmd.output_buffer().line_length();
@@ -18,19 +20,27 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
             .get_command_log_offset()
             .unwrap_or_else(|| total_lines.saturating_sub(viewport_height));
 
-        cmd.output_buffer()
-            .slice_lines(scroll_offset, viewport_height)
+        let show_timestamp = app.command_log_timestamp_visibility();
+
+        let sliced_lines = cmd
+            .output_buffer()
+            .slice_lines(scroll_offset, viewport_height);
+
+        let filtered_lines = filter_lines_by_physical_height(
+            sliced_lines,
+            viewport_width,
+            viewport_height,
+            show_timestamp,
+        );
+
+        filtered_lines
             .iter()
             .flat_map(|line| {
-                let content = if app.command_log_timestamp_visibility() {
-                    format!(
-                        "[{}] {}",
-                        line.timestamp().format("%H:%M:%S"),
-                        line.content()
-                    )
-                } else {
-                    line.content().to_string()
-                };
+                let content = format_str(
+                    line.timestamp(),
+                    &line.content().to_string(),
+                    show_timestamp,
+                );
 
                 content
                     .into_text()
@@ -47,6 +57,58 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         .block(Block::default().title(" Output ").borders(Borders::ALL));
 
     frame.render_widget(output, area);
+}
+
+fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
+    if viewport_width == 0 {
+        return 0;
+    }
+
+    let text_length = text.chars().count();
+
+    if text_length == 0 {
+        return 1;
+    }
+
+    text_length.div_ceil(viewport_width)
+}
+
+fn filter_lines_by_physical_height(
+    lines: Vec<&OutputLine>,
+    viewport_width: usize,
+    viewport_height: usize,
+    show_timestamp: bool,
+) -> Vec<&OutputLine> {
+    if viewport_height == 0 || lines.is_empty() {
+        return Vec::new();
+    }
+
+    let mut accumulated_height = 0;
+    let mut result = Vec::new();
+
+    for line in lines.iter().rev() {
+        let content = format_str(line.timestamp(), &line.plain_text(), show_timestamp);
+
+        let physical_lines = calculate_physical_lines(&content, viewport_width);
+
+        if accumulated_height + physical_lines <= viewport_height {
+            accumulated_height += physical_lines;
+            result.push(*line);
+        } else {
+            break;
+        }
+    }
+
+    result.reverse();
+    result
+}
+
+fn format_str(timestamp: &DateTime<Local>, str: &String, show_timestamp: bool) -> String {
+    if show_timestamp {
+        format!("[{}] {}", timestamp.format("%H:%M:%S"), str)
+    } else {
+        str.to_string()
+    }
 }
 
 #[cfg(test)]
