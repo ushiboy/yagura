@@ -7,6 +7,7 @@ use ratatui::{
     text::{Line, Text},
     widgets::{Block, Borders, Paragraph, Wrap},
 };
+use unicode_width::UnicodeWidthStr;
 
 pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let command = app.get_selected_command();
@@ -36,11 +37,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         filtered_lines
             .iter()
             .flat_map(|line| {
-                let content = format_str(
-                    line.timestamp(),
-                    &line.content().to_string(),
-                    show_timestamp,
-                );
+                let content = format_str(line.timestamp(), line.content(), show_timestamp);
 
                 content
                     .into_text()
@@ -57,20 +54,6 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         .block(Block::default().title(" Output ").borders(Borders::ALL));
 
     frame.render_widget(output, area);
-}
-
-fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
-    if viewport_width == 0 {
-        return 0;
-    }
-
-    let text_length = text.chars().count();
-
-    if text_length == 0 {
-        return 1;
-    }
-
-    text_length.div_ceil(viewport_width)
 }
 
 fn filter_lines_by_physical_height(
@@ -103,7 +86,21 @@ fn filter_lines_by_physical_height(
     result
 }
 
-fn format_str(timestamp: &DateTime<Local>, str: &String, show_timestamp: bool) -> String {
+fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
+    if viewport_width == 0 {
+        return 0;
+    }
+
+    let text_width = UnicodeWidthStr::width(text);
+
+    if text_width == 0 {
+        return 1;
+    }
+
+    text_width.div_ceil(viewport_width)
+}
+
+fn format_str(timestamp: &DateTime<Local>, str: &str, show_timestamp: bool) -> String {
     if show_timestamp {
         format!("[{}] {}", timestamp.format("%H:%M:%S"), str)
     } else {
