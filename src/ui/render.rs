@@ -20,7 +20,7 @@ pub fn render(frame: &mut Frame, app: &App, frame_context: &FrameContext) {
         command_list_area_help_bar::render(frame, frame_context.command_list_help_bar_area, app);
 
         if app.debug_mode() {
-            debug_bar::render(frame, frame_context.help_bar_area, app);
+            debug_bar::render(frame, frame_context.help_bar_area, app, frame_context);
         } else {
             output_area_help_bar::render(frame, frame_context.help_bar_area, app);
         }
