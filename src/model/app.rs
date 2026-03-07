@@ -13,6 +13,8 @@ pub struct App {
     mode: AppMode,
     // UI state of the application
     ui_state: UIState,
+    // Flag for enabling debug mode
+    debug_mode: bool,
 }
 
 impl App {
@@ -58,6 +60,14 @@ impl App {
 
     pub fn help_visible(&self) -> bool {
         self.ui_state.help_visible()
+    }
+
+    pub fn toggle_debug_mode(&mut self) {
+        self.debug_mode = !self.debug_mode;
+    }
+
+    pub fn debug_mode(&self) -> bool {
+        self.debug_mode
     }
 }
 

@@ -64,6 +64,8 @@ pub async fn handle_normal_mode(
                 }
             }
         }
+        // Toggle debug mode
+        KeyCode::Char('~') => app.toggle_debug_mode(),
         _ => {}
     }
 

@@ -15,6 +15,7 @@ impl App {
             should_quit: false,
             mode: AppMode::Normal,
             ui_state: UIState::new(),
+            debug_mode: false,
         }
     }
 }
@@ -29,5 +30,6 @@ mod tests {
         assert!(!app.should_quit());
         assert_eq!(app.mode, AppMode::Normal);
         assert_eq!(app.ui_state, UIState::new());
+        assert!(!app.debug_mode);
     }
 }

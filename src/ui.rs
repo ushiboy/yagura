@@ -1,6 +1,7 @@
 mod add_command_dialog;
 mod command_list;
 mod command_list_area_help_bar;
+mod debug_bar;
 mod delete_command_dialog;
 mod frame_context;
 mod output_area;
