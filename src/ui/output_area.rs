@@ -7,7 +7,6 @@ use ratatui::{
     text::{Line, Text},
     widgets::{Block, Borders, Paragraph, Wrap},
 };
-use unicode_width::UnicodeWidthStr;
 
 pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let command = app.get_selected_command();
@@ -70,7 +69,7 @@ fn filter_lines_by_physical_height(
     let mut result = Vec::new();
 
     for line in lines.iter().rev() {
-        let content = format_str(line.timestamp(), &line.plain_text(), show_timestamp);
+        let content = format_str(line.timestamp(), line.content(), show_timestamp);
 
         let physical_lines = calculate_physical_lines(&content, viewport_width);
 
@@ -91,13 +90,11 @@ fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
         return 0;
     }
 
-    let text_width = UnicodeWidthStr::width(text);
+    let content = text.into_text().unwrap_or_else(|_| Text::from(text));
 
-    if text_width == 0 {
-        return 1;
-    }
+    let paragraph = Paragraph::new(content).wrap(Wrap { trim: true });
 
-    text_width.div_ceil(viewport_width)
+    paragraph.line_count(viewport_width as u16)
 }
 
 fn format_str(timestamp: &DateTime<Local>, str: &str, show_timestamp: bool) -> String {
