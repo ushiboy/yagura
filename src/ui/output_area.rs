@@ -1,4 +1,4 @@
-use crate::model::{App, OutputLine, calculate_physical_lines, format_str};
+use crate::model::{App, format_str};
 use ansi_to_tui::IntoText;
 use ratatui::{
     Frame,
@@ -13,24 +13,10 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let viewport_height = area.height.saturating_sub(2) as usize;
     let viewport_width = area.width.saturating_sub(2) as usize; // Account for borders
 
-    let content = if let Some(cmd) = command {
-        let total_lines = cmd.output_buffer().line_length();
-        let scroll_offset = app
-            .get_command_log_offset()
-            .unwrap_or_else(|| total_lines.saturating_sub(viewport_height));
-
+    let content = if let Some(_cmd) = command {
         let show_timestamp = app.command_log_timestamp_visibility();
 
-        let sliced_lines = cmd
-            .output_buffer()
-            .slice_lines(scroll_offset, viewport_height);
-
-        let filtered_lines = filter_lines_by_physical_height(
-            sliced_lines,
-            viewport_width,
-            viewport_height,
-            show_timestamp,
-        );
+        let filtered_lines = app.get_visible_output_lines(viewport_height, viewport_width);
 
         filtered_lines
             .iter()
@@ -52,36 +38,6 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
         .block(Block::default().title(" Output ").borders(Borders::ALL));
 
     frame.render_widget(output, area);
-}
-
-fn filter_lines_by_physical_height(
-    lines: Vec<&OutputLine>,
-    viewport_width: usize,
-    viewport_height: usize,
-    show_timestamp: bool,
-) -> Vec<&OutputLine> {
-    if viewport_height == 0 || lines.is_empty() {
-        return Vec::new();
-    }
-
-    let mut accumulated_height = 0;
-    let mut result = Vec::new();
-
-    for line in lines.iter().rev() {
-        let content = format_str(line.timestamp(), line.content(), show_timestamp);
-
-        let physical_lines = calculate_physical_lines(&content, viewport_width);
-
-        if accumulated_height + physical_lines <= viewport_height {
-            accumulated_height += physical_lines;
-            result.push(*line);
-        } else {
-            break;
-        }
-    }
-
-    result.reverse();
-    result
 }
 
 #[cfg(test)]

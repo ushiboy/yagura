@@ -21,10 +21,16 @@ pub async fn handle_normal_mode(
         KeyCode::Char('d') => app.change_deleting_mode(),
         KeyCode::Char('h') => app.toggle_help(),
         KeyCode::Char('j') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-            app.line_down_command_log(viewport_metrics.output_area_height);
+            app.line_down_command_log(
+                viewport_metrics.output_area_height,
+                viewport_metrics.output_area_width,
+            );
         }
         KeyCode::Char('k') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-            app.line_up_command_log(viewport_metrics.output_area_height);
+            app.line_up_command_log(
+                viewport_metrics.output_area_height,
+                viewport_metrics.output_area_width,
+            );
         }
         KeyCode::Char('j') | KeyCode::Down => {
             app.select_next_command();
@@ -35,14 +41,23 @@ pub async fn handle_normal_mode(
             app.ensure_selection_visible(viewport_metrics.command_list_height);
         }
         KeyCode::Char('f') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-            app.page_down_command_log(viewport_metrics.output_area_height);
+            app.page_down_command_log(
+                viewport_metrics.output_area_height,
+                viewport_metrics.output_area_width,
+            );
         }
         KeyCode::Char('b') if key.modifiers.contains(KeyModifiers::CONTROL) => {
-            app.page_up_command_log(viewport_metrics.output_area_height);
+            app.page_up_command_log(
+                viewport_metrics.output_area_height,
+                viewport_metrics.output_area_width,
+            );
         }
         KeyCode::Char('t') => app.toggle_command_log_timestamp_visibility(),
         KeyCode::Char('y') => {
-            app.yank_visible_command_output(viewport_metrics.output_area_height);
+            app.yank_visible_command_output(
+                viewport_metrics.output_area_height,
+                viewport_metrics.output_area_width,
+            );
         }
         KeyCode::Enter => {
             if let Some(command) = app.get_selected_command() {

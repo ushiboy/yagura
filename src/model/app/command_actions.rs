@@ -46,8 +46,8 @@ impl App {
         }
     }
 
-    pub fn yank_visible_command_output(&mut self, viewport_height: usize) {
-        if let Some(output) = self.visible_output_as_plain_text(viewport_height)
+    pub fn yank_visible_command_output(&mut self, viewport_height: usize, viewport_width: usize) {
+        if let Some(output) = self.visible_output_as_plain_text(viewport_height, viewport_width)
             && let Some(clipboard) = &mut self.clipboard
             && clipboard.set_text(output).is_err()
         {
