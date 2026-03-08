@@ -1,6 +1,5 @@
-use crate::model::{App, OutputLine};
+use crate::model::{App, OutputLine, calculate_physical_lines, format_str};
 use ansi_to_tui::IntoText;
-use chrono::{DateTime, Local};
 use ratatui::{
     Frame,
     layout::Rect,
@@ -83,26 +82,6 @@ fn filter_lines_by_physical_height(
 
     result.reverse();
     result
-}
-
-fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
-    if viewport_width == 0 {
-        return 0;
-    }
-
-    let content = text.into_text().unwrap_or_else(|_| Text::from(text));
-
-    let paragraph = Paragraph::new(content).wrap(Wrap { trim: true });
-
-    paragraph.line_count(viewport_width as u16)
-}
-
-fn format_str(timestamp: &DateTime<Local>, str: &str, show_timestamp: bool) -> String {
-    if show_timestamp {
-        format!("[{}] {}", timestamp.format("%H:%M:%S"), str)
-    } else {
-        str.to_string()
-    }
 }
 
 #[cfg(test)]
