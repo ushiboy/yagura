@@ -5,6 +5,8 @@ use ratatui::widgets::{Paragraph, Wrap};
 
 use crate::model::OutputLine;
 
+const TIMESTAMP_FORMAT: &str = "%H:%M:%S";
+
 // Calculates the number of physical lines needed to display the given text within the specified viewport width.
 pub fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
     if viewport_width == 0 {
@@ -19,7 +21,7 @@ pub fn calculate_physical_lines(text: &str, viewport_width: usize) -> usize {
 // Formats a string with an optional timestamp prefix. If `show_timestamp` is true, the timestamp is formatted as "[HH:MM:SS] " and prepended to the string.
 pub fn format_str(timestamp: &DateTime<Local>, str: &str, show_timestamp: bool) -> String {
     if show_timestamp {
-        format!("[{}] {}", timestamp.format("%H:%M:%S"), str)
+        format!("[{}] {}", timestamp.format(TIMESTAMP_FORMAT), str)
     } else {
         str.to_string()
     }
@@ -87,7 +89,7 @@ mod tests {
     #[test]
     fn test_format_str_with_timestamp() {
         let timestamp = Local::now();
-        let formated_timestamp = timestamp.format("%H:%M:%S").to_string();
+        let formated_timestamp = timestamp.format(TIMESTAMP_FORMAT).to_string();
 
         let result = format_str(&timestamp, "test message", true);
 

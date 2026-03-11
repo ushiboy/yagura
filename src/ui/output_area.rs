@@ -13,7 +13,7 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let viewport_height = area.height.saturating_sub(2) as usize;
     let viewport_width = area.width.saturating_sub(2) as usize; // Account for borders
 
-    let content = if let Some(_cmd) = command {
+    let content = if command.is_some() {
         let show_timestamp = app.command_log_timestamp_visibility();
 
         let filtered_lines = app.get_visible_output_lines(viewport_height, viewport_width);
