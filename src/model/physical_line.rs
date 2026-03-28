@@ -3,8 +3,6 @@ use chrono::{DateTime, Local};
 use ratatui::text::Text;
 use ratatui::widgets::{Paragraph, Wrap};
 
-use crate::model::OutputLine;
-
 const TIMESTAMP_FORMAT: &str = "%H:%M:%S";
 
 // Calculates the number of physical lines needed to display the given text within the specified viewport width.
@@ -25,37 +23,6 @@ pub fn format_str(timestamp: &DateTime<Local>, str: &str, show_timestamp: bool) 
     } else {
         str.to_string()
     }
-}
-
-// Filters a list of `OutputLine` references to include only those that fit within the specified viewport height when rendered with the given width and timestamp visibility settings.
-pub fn filter_lines_by_physical_height(
-    lines: Vec<&OutputLine>,
-    viewport_width: usize,
-    viewport_height: usize,
-    show_timestamp: bool,
-) -> Vec<&OutputLine> {
-    if viewport_height == 0 || lines.is_empty() {
-        return Vec::new();
-    }
-
-    let mut accumulated_height = 0;
-    let mut result = Vec::new();
-
-    // Process lines in forward order (not reverse) to include lines starting from scroll_offset
-    for line in lines.iter() {
-        let content = format_str(line.timestamp(), line.content(), show_timestamp);
-
-        let physical_lines = calculate_physical_lines(&content, viewport_width);
-
-        if accumulated_height + physical_lines <= viewport_height {
-            accumulated_height += physical_lines;
-            result.push(*line);
-        } else {
-            break;
-        }
-    }
-
-    result
 }
 
 #[cfg(test)]

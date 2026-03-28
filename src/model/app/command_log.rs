@@ -1,17 +1,17 @@
 use super::App;
 use super::Command;
 use crate::model::OutputLine;
-use crate::model::{calculate_physical_lines, filter_lines_by_physical_height, format_str};
+use crate::model::{calculate_physical_lines, format_str};
 
 impl App {
-    // Returns the current log offset for the selected command, or None if no offset is set.
+    // Returns the current physical row offset for the selected command, or None if in auto-follow mode.
     pub fn get_command_log_offset(&self) -> Option<usize> {
         let index = self.ui_state.selected_command_index()?;
         let command = self.commands.get(index)?;
         self.ui_state.get_command_log_offset(command.id())
     }
 
-    // Returns the maximum valid log offset for the selected command based on the current viewport size and line wrapping.
+    // Returns the maximum valid physical row offset for the selected command, or None if no command selected.
     pub fn get_command_log_max_offset(
         &self,
         viewport_height: usize,
@@ -20,38 +20,56 @@ impl App {
         let index = self.ui_state.selected_command_index()?;
         let command = self.commands.get(index)?;
         let show_timestamp = self.command_log_timestamp_visibility();
-        Some(self.calculate_max_offset(command, viewport_height, viewport_width, show_timestamp))
+        Some(self.calculate_max_physical_offset(
+            command,
+            viewport_height,
+            viewport_width,
+            show_timestamp,
+        ))
     }
 
-    // Returns the visible output lines for the selected command, taking into account the current log offset, viewport height, and line wrapping.
+    // Returns the visible output lines for the selected command, along with the sub_offset for the first line.
+    pub fn get_visible_lines_with_sub_offset(
+        &self,
+        viewport_height: usize,
+        viewport_width: usize,
+    ) -> (Vec<&OutputLine>, usize) {
+        let Some(command) = self.get_selected_command() else {
+            return (vec![], 0);
+        };
+        let show_timestamp = self.command_log_timestamp_visibility();
+
+        match self.get_command_log_offset() {
+            None => {
+                let lines = self.collect_lines_from_bottom(
+                    command,
+                    viewport_height,
+                    viewport_width,
+                    show_timestamp,
+                );
+                (lines, 0)
+            }
+            Some(physical_offset) => self.collect_lines_from_physical_offset(
+                command,
+                physical_offset,
+                viewport_height,
+                viewport_width,
+                show_timestamp,
+            ),
+        }
+    }
+
+    // Returns the visible output lines for the selected command, without sub_offset information.
     pub fn get_visible_output_lines(
         &self,
         viewport_height: usize,
         viewport_width: usize,
     ) -> Vec<&OutputLine> {
-        if let Some(command) = self.get_selected_command() {
-            let scroll_offset = self.get_command_log_offset().unwrap_or_else(|| {
-                self.get_command_log_max_offset(viewport_height, viewport_width)
-                    .unwrap_or(0)
-            });
-            let show_timestamp = self.command_log_timestamp_visibility();
-
-            let sliced_lines = command
-                .output_buffer()
-                .slice_lines(scroll_offset, viewport_height);
-
-            filter_lines_by_physical_height(
-                sliced_lines,
-                viewport_width,
-                viewport_height,
-                show_timestamp,
-            )
-        } else {
-            vec![]
-        }
+        self.get_visible_lines_with_sub_offset(viewport_height, viewport_width)
+            .0
     }
 
-    // Returns the visible output lines for the selected command as plain text, taking into account the current log offset and viewport height.
+    // Returns the visible output lines for the selected command as plain text.
     pub fn visible_output_as_plain_text(
         &self,
         viewport_height: usize,
@@ -69,22 +87,22 @@ impl App {
         Some(formatted)
     }
 
-    // Scrolls the command log down by one line, ensuring it doesn't exceed the maximum offset.
+    // Scrolls the command log down by one physical row.
     pub fn line_down_command_log(&mut self, viewport_height: usize, viewport_width: usize) {
         self.scroll_down(viewport_height, viewport_width, 1);
     }
 
-    // Scrolls the command log up by one line, ensuring it doesn't go below zero.
+    // Scrolls the command log up by one physical row.
     pub fn line_up_command_log(&mut self, viewport_height: usize, viewport_width: usize) {
         self.scroll_up(viewport_height, viewport_width, 1);
     }
 
-    // Scrolls the command log down by one page (viewport height), ensuring it doesn't exceed the maximum offset.
+    // Scrolls the command log down by one page (viewport_height physical rows).
     pub fn page_down_command_log(&mut self, viewport_height: usize, viewport_width: usize) {
         self.scroll_down(viewport_height, viewport_width, viewport_height);
     }
 
-    // Scrolls the command log up by one page (viewport height), ensuring it doesn't go below zero.
+    // Scrolls the command log up by one page (viewport_height physical rows).
     pub fn page_up_command_log(&mut self, viewport_height: usize, viewport_width: usize) {
         self.scroll_up(viewport_height, viewport_width, viewport_height);
     }
@@ -101,20 +119,15 @@ impl App {
         {
             let id = command.id();
             let show_timestamp = self.command_log_timestamp_visibility();
-
-            let new_offset = self.calculate_offset_for_scroll_down(
+            let max_offset = self.calculate_max_physical_offset(
                 command,
-                current_offset,
+                viewport_height,
                 viewport_width,
-                physical_delta,
                 show_timestamp,
             );
+            let new_offset = (current_offset + physical_delta).min(max_offset);
 
-            let max_offset =
-                self.calculate_max_offset(command, viewport_height, viewport_width, show_timestamp);
-            let new_offset = new_offset.min(max_offset);
-
-            if current_offset == new_offset {
+            if new_offset >= max_offset {
                 self.ui_state.remove_command_log_offset(id);
             } else {
                 self.ui_state.set_command_log_offset(id, new_offset);
@@ -128,135 +141,132 @@ impl App {
         {
             let id = command.id();
             let show_timestamp = self.command_log_timestamp_visibility();
-
-            let max_offset =
-                self.calculate_max_offset(command, viewport_height, viewport_width, show_timestamp);
+            let max_offset = self.calculate_max_physical_offset(
+                command,
+                viewport_height,
+                viewport_width,
+                show_timestamp,
+            );
             let current = self
                 .ui_state
                 .get_command_log_offset(id)
                 .unwrap_or(max_offset);
-
-            let new_offset = self.calculate_offset_for_scroll_up(
-                command,
-                current,
-                viewport_width,
-                physical_delta,
-                show_timestamp,
-            );
-
+            let new_offset = current.saturating_sub(physical_delta);
             self.ui_state.set_command_log_offset(id, new_offset);
         }
     }
 
-    fn get_physical_line_count_at_offset(
+    // Helper to calculate the total number of physical lines in a command's output, given the viewport width and timestamp visibility.
+    fn calculate_total_physical_lines(
         &self,
         command: &Command,
-        logical_offset: usize,
         viewport_width: usize,
-        show_timestamp: bool,
-    ) -> Option<usize> {
-        let lines = command.output_buffer().slice_lines(logical_offset, 1);
-        let line = lines.first()?;
-        let content = format_str(line.timestamp(), line.content(), show_timestamp);
-        Some(calculate_physical_lines(&content, viewport_width))
-    }
-
-    fn calculate_offset_for_scroll_down(
-        &self,
-        command: &Command,
-        current_offset: usize,
-        viewport_width: usize,
-        physical_delta: usize,
         show_timestamp: bool,
     ) -> usize {
-        let total_lines = command.output_buffer().line_length();
-        let mut accumulated_physical = 0;
-        let mut logical_offset = current_offset;
-
-        while logical_offset < total_lines && accumulated_physical < physical_delta {
-            if let Some(physical_lines) = self.get_physical_line_count_at_offset(
-                command,
-                logical_offset,
-                viewport_width,
-                show_timestamp,
-            ) {
-                accumulated_physical += physical_lines;
-                logical_offset += 1;
-            } else {
-                break;
-            }
-        }
-
-        logical_offset
+        command
+            .output_buffer()
+            .lines()
+            .iter()
+            .map(|line| {
+                let content = format_str(line.timestamp(), line.content(), show_timestamp);
+                calculate_physical_lines(&content, viewport_width)
+            })
+            .sum()
     }
 
-    fn calculate_offset_for_scroll_up(
-        &self,
-        command: &Command,
-        current_offset: usize,
-        viewport_width: usize,
-        physical_delta: usize,
-        show_timestamp: bool,
-    ) -> usize {
-        if current_offset == 0 {
-            return 0;
-        }
-
-        let mut accumulated_physical = 0;
-        let mut logical_offset = current_offset;
-
-        while logical_offset > 0 && accumulated_physical < physical_delta {
-            logical_offset -= 1;
-            if let Some(physical_lines) = self.get_physical_line_count_at_offset(
-                command,
-                logical_offset,
-                viewport_width,
-                show_timestamp,
-            ) {
-                accumulated_physical += physical_lines;
-            } else {
-                break;
-            }
-        }
-
-        logical_offset
-    }
-
-    fn calculate_max_offset(
+    // Calculates the maximum valid physical row offset for a command, given the viewport dimensions and timestamp visibility.
+    fn calculate_max_physical_offset(
         &self,
         command: &Command,
         viewport_height: usize,
         viewport_width: usize,
         show_timestamp: bool,
     ) -> usize {
-        let total_lines = command.output_buffer().line_length();
-        if total_lines == 0 {
-            return 0;
+        let total = self.calculate_total_physical_lines(command, viewport_width, show_timestamp);
+        total.saturating_sub(viewport_height)
+    }
+
+    // When in auto-follow (offset=None): walks backwards from the end to find lines that fill the viewport, returns them with sub_offset=0.
+    fn collect_lines_from_bottom<'a>(
+        &self,
+        command: &'a Command,
+        viewport_height: usize,
+        viewport_width: usize,
+        show_timestamp: bool,
+    ) -> Vec<&'a OutputLine> {
+        if viewport_height == 0 {
+            return vec![];
+        }
+        let all_lines: Vec<&OutputLine> = command.output_buffer().lines().iter().collect();
+        let mut accumulated = 0usize;
+        let mut start = all_lines.len();
+
+        for i in (0..all_lines.len()).rev() {
+            let content = format_str(
+                all_lines[i].timestamp(),
+                all_lines[i].content(),
+                show_timestamp,
+            );
+            let phys = calculate_physical_lines(&content, viewport_width);
+            if accumulated + phys > viewport_height {
+                break;
+            }
+            accumulated += phys;
+            start = i;
         }
 
-        let mut accumulated_physical = 0;
-        let mut logical_offset = total_lines;
+        all_lines[start..].to_vec()
+    }
 
-        while logical_offset > 0 {
-            logical_offset -= 1;
-            if let Some(physical_lines) = self.get_physical_line_count_at_offset(
-                command,
-                logical_offset,
-                viewport_width,
-                show_timestamp,
-            ) {
-                if accumulated_physical + physical_lines > viewport_height {
-                    logical_offset += 1;
-                    break;
-                }
+    // When at a specific physical_offset: finds the logical line containing that offset, then collects lines until filling the viewport after skipping sub_offset.
+    fn collect_lines_from_physical_offset<'a>(
+        &self,
+        command: &'a Command,
+        physical_offset: usize,
+        viewport_height: usize,
+        viewport_width: usize,
+        show_timestamp: bool,
+    ) -> (Vec<&'a OutputLine>, usize) {
+        if viewport_height == 0 {
+            return (vec![], 0);
+        }
+        let all_lines: Vec<&OutputLine> = command.output_buffer().lines().iter().collect();
 
-                accumulated_physical += physical_lines;
-            } else {
+        let mut accumulated = 0usize;
+        let mut start_logical = all_lines.len();
+        let mut sub_offset = 0usize;
+
+        for (i, line) in all_lines.iter().enumerate() {
+            let content = format_str(line.timestamp(), line.content(), show_timestamp);
+            let phys = calculate_physical_lines(&content, viewport_width);
+
+            if accumulated + phys > physical_offset {
+                start_logical = i;
+                sub_offset = physical_offset - accumulated;
+                break;
+            }
+            accumulated += phys;
+        }
+
+        if start_logical == all_lines.len() {
+            return (vec![], 0);
+        }
+
+        let needed = viewport_height + sub_offset;
+        let mut collected_phys = 0usize;
+        let mut result = Vec::new();
+
+        for line in &all_lines[start_logical..] {
+            let content = format_str(line.timestamp(), line.content(), show_timestamp);
+            let phys = calculate_physical_lines(&content, viewport_width);
+            result.push(*line);
+            collected_phys += phys;
+            if collected_phys >= needed {
                 break;
             }
         }
 
-        logical_offset
+        (result, sub_offset)
     }
 }
 
@@ -307,7 +317,7 @@ mod tests {
 
         app.line_down_command_log(5, 80);
 
-        // No offset was set, so nothing should happen
+        // No offset set → no-op (auto-follow remains)
         assert_eq!(app.get_command_log_offset(), None);
     }
 
@@ -320,9 +330,11 @@ mod tests {
         app.select_command_by_id(command_id);
         add_output_lines(&mut app, command_id, 20);
 
+        // Short lines → 1 physical row each; physical offset == logical index numerically.
         app.ui_state.set_command_log_offset(command_id, 5);
         app.line_down_command_log(10, 80);
 
+        // 5 + 1 = 6 physical rows
         assert_eq!(app.get_command_log_offset(), Some(6));
     }
 
@@ -335,11 +347,11 @@ mod tests {
         app.select_command_by_id(command_id);
         add_output_lines(&mut app, command_id, 20);
 
-        // max_offset = 20 - 10 = 10
+        // max_physical_offset = 20 - 10 = 10
         app.ui_state.set_command_log_offset(command_id, 10);
         app.line_down_command_log(10, 80);
 
-        // Should remove offset when at max
+        // Reached max → auto-follow (None)
         assert_eq!(app.get_command_log_offset(), None);
     }
 
@@ -354,7 +366,7 @@ mod tests {
 
         app.line_up_command_log(10, 80);
 
-        // Defaults to max_offset (20 - 10 = 10), then decrements to 9
+        // max_physical_offset = 20 - 10 = 10; 10 - 1 = 9
         assert_eq!(app.get_command_log_offset(), Some(9));
     }
 
@@ -385,7 +397,7 @@ mod tests {
         app.ui_state.set_command_log_offset(command_id, 0);
         app.line_up_command_log(10, 80);
 
-        // saturating_sub ensures it stays at 0
+        // saturating_sub(1) at 0 stays at 0
         assert_eq!(app.get_command_log_offset(), Some(0));
     }
 
@@ -400,7 +412,7 @@ mod tests {
 
         app.page_down_command_log(5, 80);
 
-        // No offset was set, so nothing should happen
+        // No offset set → no-op
         assert_eq!(app.get_command_log_offset(), None);
     }
 
@@ -416,10 +428,7 @@ mod tests {
         app.ui_state.set_command_log_offset(command_id, 5);
         app.page_down_command_log(10, 80);
 
-        // With physical line scrolling, the exact offset depends on line wrapping
-        // Since test lines are short (e.g., "Line 0"), they won't wrap at width 80
-        // So behavior should be similar: scrolling down by 10 physical lines
-        // means advancing by 10 logical lines
+        // 5 + 10 = 15 physical rows
         assert_eq!(app.get_command_log_offset(), Some(15));
     }
 
@@ -432,12 +441,12 @@ mod tests {
         app.select_command_by_id(command_id);
         add_output_lines(&mut app, command_id, 20);
 
-        // max_offset = 20 - 10 = 10
+        // max_physical_offset = 20 - 10 = 10
         app.ui_state.set_command_log_offset(command_id, 8);
         app.page_down_command_log(10, 80);
 
-        // Scrolling down by 10 physical lines from offset 8 should be clamped to max_offset (10)
-        assert_eq!(app.get_command_log_offset(), Some(10));
+        // 8 + 10 = 18, clamped to max=10 → auto-follow (None)
+        assert_eq!(app.get_command_log_offset(), None);
     }
 
     #[test]
@@ -451,7 +460,7 @@ mod tests {
 
         app.page_up_command_log(10, 80);
 
-        // Defaults to max_offset (30 - 10 = 20), then subtracts 10 physical lines = 10
+        // max = 30 - 10 = 20; 20 - 10 = 10
         assert_eq!(app.get_command_log_offset(), Some(10));
     }
 
@@ -483,7 +492,7 @@ mod tests {
         app.ui_state.set_command_log_offset(command_id, 5);
         app.page_up_command_log(10, 80);
 
-        // 5 - 10 = saturating to 0
+        // 5 - 10 saturates to 0
         assert_eq!(app.get_command_log_offset(), Some(0));
     }
 
@@ -495,12 +504,10 @@ mod tests {
         app.add_command(command);
         app.select_command_by_id(command_id);
 
-        // No output lines added
         app.ui_state.set_command_log_offset(command_id, 0);
         app.line_down_command_log(10, 80);
 
-        // max_offset = 0 - 10 = 0 (saturating_sub)
-        // current_offset (0) == new_offset (0), so offset is removed
+        // max_physical_offset = 0; 0 + 1 clamped to 0 → auto-follow
         assert_eq!(app.get_command_log_offset(), None);
     }
 
@@ -513,12 +520,11 @@ mod tests {
         app.select_command_by_id(command_id);
         add_output_lines(&mut app, command_id, 5);
 
-        // viewport_height = 10, total_lines = 5
-        // max_offset = 5 - 10 = 0 (saturating_sub)
+        // total_physical=5, viewport=10 → max_physical_offset=0
         app.ui_state.set_command_log_offset(command_id, 0);
         app.line_down_command_log(10, 80);
 
-        // current == new, so offset removed
+        // 0 + 1 clamped to max=0 → auto-follow
         assert_eq!(app.get_command_log_offset(), None);
     }
 
@@ -530,24 +536,17 @@ mod tests {
         app.add_command(command);
         app.select_command_by_id(command_id);
 
-        // Add lines that will wrap to multiple physical lines at width 80
-        // Each line is 200 characters, which wraps to 3 physical lines at width 80
         for i in 0..10 {
             app.add_output_line(
                 command_id,
-                OutputLine::new(format!("Line {}: {}", i, "x".repeat(200))),
+                OutputLine::new(format!("Line {}: {}", i, "x".repeat(161))),
             );
         }
 
-        // viewport_height = 10 physical lines, viewport_width = 80
-        // Each logical line wraps to ~3 physical lines
-        // So we can fit approximately 3 logical lines in 10 physical lines
-
-        // Test scrolling up from the bottom
         app.line_up_command_log(10, 80);
         let offset = app.get_command_log_offset();
         assert!(offset.is_some());
-        assert!(offset.unwrap() < 10); // Should scroll back from the end
+        assert!(offset.unwrap() < 30);
     }
 
     #[test]
@@ -558,49 +557,19 @@ mod tests {
         app.add_command(command);
         app.select_command_by_id(command_id);
 
-        // Add lines that will wrap
         for i in 0..20 {
             app.add_output_line(
                 command_id,
-                OutputLine::new(format!("Line {}: {}", i, "x".repeat(200))),
+                OutputLine::new(format!("Line {}: {}", i, "x".repeat(161))),
             );
         }
 
-        // With wrapped lines, max_offset should be calculated based on physical lines
         let max_offset = app.get_command_log_max_offset(10, 80);
         assert!(max_offset.is_some());
-        // The max offset should be greater than (20 - 10) because lines wrap
-        assert!(max_offset.unwrap() > 10);
-    }
-
-    #[test]
-    fn test_line_down_with_wrapped_lines() {
-        let mut app = App::new();
-        let command = Command::new("test");
-        let command_id = command.id();
-        app.add_command(command);
-        app.select_command_by_id(command_id);
-
-        // Add lines that wrap
-        for i in 0..20 {
-            app.add_output_line(
-                command_id,
-                OutputLine::new(format!("Line {}: {}", i, "x".repeat(200))),
-            );
-        }
-
-        app.ui_state.set_command_log_offset(command_id, 0);
-
-        // Scroll down by 1 physical line
-        app.line_down_command_log(10, 80);
-        let after_scroll = app.get_command_log_offset();
-
-        // Since we're scrolling down by 1 physical line but the first line wraps to ~3 physical lines,
-        // the logical offset should still be 0 (we're still within the same wrapped line)
-        // Actually, line_down scrolls by 1 physical line, so it might stay at 0 or move to 1
-        // depending on whether we've consumed a full logical line
-        assert!(after_scroll.is_some());
-        assert!(after_scroll.unwrap() <= 1);
+        assert!(
+            max_offset.unwrap() > 10,
+            "physical max offset must be much larger than logical max"
+        );
     }
 
     #[test]
@@ -611,7 +580,6 @@ mod tests {
         app.add_command(command);
         app.select_command_by_id(command_id);
 
-        // Add lines that wrap
         for i in 0..10 {
             app.add_output_line(
                 command_id,
@@ -619,13 +587,9 @@ mod tests {
             );
         }
 
-        // Get visible output as plain text with physical line constraints
         let output = app.visible_output_as_plain_text(10, 80);
         assert!(output.is_some());
-
-        let text = output.unwrap();
-        // The output should contain fewer than 10 logical lines because they wrap
-        let line_count = text.lines().count();
+        let line_count = output.unwrap().lines().count();
         assert!(line_count < 10);
         assert!(line_count > 0);
     }

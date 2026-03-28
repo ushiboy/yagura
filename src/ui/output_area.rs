@@ -13,12 +13,13 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
     let viewport_height = area.height.saturating_sub(2) as usize;
     let viewport_width = area.width.saturating_sub(2) as usize; // Account for borders
 
-    let content = if command.is_some() {
+    let (text_lines, sub_offset) = if command.is_some() {
         let show_timestamp = app.command_log_timestamp_visibility();
 
-        let filtered_lines = app.get_visible_output_lines(viewport_height, viewport_width);
+        let (visible_lines, sub_offset) =
+            app.get_visible_lines_with_sub_offset(viewport_height, viewport_width);
 
-        filtered_lines
+        let lines = visible_lines
             .iter()
             .flat_map(|line| {
                 let content = format_str(line.timestamp(), line.content(), show_timestamp);
@@ -28,13 +29,16 @@ pub fn render(frame: &mut Frame, area: Rect, app: &App) {
                     .unwrap_or_else(|_| Text::from(content))
                     .lines
             })
-            .collect()
+            .collect();
+
+        (lines, sub_offset)
     } else {
-        vec![Line::from("No command selected.")]
+        (vec![Line::from("No command selected.")], 0)
     };
 
-    let output = Paragraph::new(content)
+    let output = Paragraph::new(text_lines)
         .wrap(Wrap { trim: true })
+        .scroll((sub_offset.min(u16::MAX as usize) as u16, 0))
         .block(Block::default().title(" Output ").borders(Borders::ALL));
 
     frame.render_widget(output, area);
